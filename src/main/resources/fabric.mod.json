@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "id": "starter",
+  "id": "artis",
   "version": "$version",
 
-  "name": "Fabric Starter",
+  "name": "Artis",
   "icon": "assets/starter/icon.png",
-  "description": "Template for starting out Fabric mods",
+  "description": "Customizable crafting tables for modpacks",
   "license": "MIT",
   "contact": {
-    "sources": "https://github.com/CottonMC/FabricStarter"
+    "sources": "https://github.com/AllOfFabric/Artis"
   },
   "environment": "*",
   "entrypoints": {
     "main": [
-      "io.github.cottonmc.starter.FabricStarter"
+      "io.github.alloffabric.artis.Artis"
     ]
   },
   "mixins": [
@@ -21,8 +21,5 @@
   ],
   "depends": {
     "fabricloader": ">=0.4.0"
-  },
-  "custom": {
-    "modmenu:api": true
   }
 }
