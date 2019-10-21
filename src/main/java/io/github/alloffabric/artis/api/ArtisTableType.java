@@ -16,7 +16,19 @@ public class ArtisTableType implements RecipeType {
 		this.id = id;
 		Identifier shapedId = new Identifier(id.getNamespace(), id.getPath() + "_shaped");
 		Identifier shapelessId = new Identifier(id.getNamespace(), id.getPath() + "_shapeless");
-		this.shaped = Registry.register(Registry.RECIPE_SERIALIZER, shapedId, new ShapedArtisSerializer());
-		this.shapeless = Registry.register(Registry.RECIPE_SERIALIZER, shapelessId, new ShapelessArtisSerializer());
+		this.shaped = Registry.register(Registry.RECIPE_SERIALIZER, shapedId, new ShapedArtisSerializer(this));
+		this.shapeless = Registry.register(Registry.RECIPE_SERIALIZER, shapelessId, new ShapelessArtisSerializer(this));
+	}
+
+	public Identifier getId() {
+		return id;
+	}
+
+	public RecipeSerializer getShaped() {
+		return shaped;
+	}
+
+	public RecipeSerializer getShapeless() {
+		return shapeless;
 	}
 }

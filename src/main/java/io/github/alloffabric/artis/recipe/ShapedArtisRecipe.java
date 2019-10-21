@@ -53,4 +53,12 @@ public class ShapedArtisRecipe extends ShapedRecipe {
 	public RecipeSerializer getSerializer() {
 		return serializer;
 	}
+
+	public Ingredient getCatalyst() {
+		return catalyst;
+	}
+
+	public int getCatalystCost() {
+		return catalystCost;
+	}
 }
