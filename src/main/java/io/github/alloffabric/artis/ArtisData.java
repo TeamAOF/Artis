@@ -73,10 +73,12 @@ public class ArtisData {
 	//TODO: more options for tables
 	static ArtisTableType getType(String key, JsonObject json) {
 		Identifier id = new Identifier(key);
+		int width = json.get(Integer.class, "width");
+		int height = json.get(Integer.class, "height");
 		if (json.containsKey("color")) {
-			return new ArtisTableType(id, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
+			return new ArtisTableType(id, width, height, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
 		}
-		return new ArtisTableType(id);
+		return new ArtisTableType(id, width, height);
 	}
 
 }

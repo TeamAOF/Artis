@@ -3,6 +3,7 @@ package io.github.alloffabric.artis.recipe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import io.github.alloffabric.artis.api.ArtisTableType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.*;
 import net.minecraft.util.DefaultedList;
@@ -11,9 +12,9 @@ import net.minecraft.util.JsonHelper;
 import net.minecraft.util.PacketByteBuf;
 
 public class ShapelessArtisSerializer implements RecipeSerializer<ShapelessArtisRecipe> {
-	private RecipeType type;
+	private ArtisTableType type;
 
-	public ShapelessArtisSerializer(RecipeType type) {
+	public ShapelessArtisSerializer(ArtisTableType type) {
 		this.type = type;
 	}
 
@@ -23,8 +24,8 @@ public class ShapelessArtisSerializer implements RecipeSerializer<ShapelessArtis
 		DefaultedList<Ingredient> ingredients = getIngredients(JsonHelper.getArray(jsonObject, "ingredients"));
 		if (ingredients.isEmpty()) {
 			throw new JsonParseException("No ingredients for shapeless recipe");
-		} else if (ingredients.size() > 9) {
-			throw new JsonParseException("Too many ingredients for shapeless recipe");
+		} else if (ingredients.size() > type.getWidth() * type.getHeight()) {
+			throw new JsonParseException("Too many ingredients for shapeless " + type.getId().toString() + " recipe");
 		} else {
 			ItemStack output = ShapedRecipe.getItemStack(JsonHelper.getObject(jsonObject, "result"));
 			Ingredient catalyst = Ingredient.fromJson(jsonObject.get("catalyst"));

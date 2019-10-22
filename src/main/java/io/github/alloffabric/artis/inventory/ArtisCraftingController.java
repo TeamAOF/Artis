@@ -1,13 +1,11 @@
 package io.github.alloffabric.artis.inventory;
 
+import io.github.alloffabric.artis.Artis;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.cottonmc.cotton.gui.CottonScreenController;
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
-import io.github.cottonmc.cotton.gui.widget.WItemSlot;
-import io.github.cottonmc.cotton.gui.widget.WLabel;
-import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
-import io.github.cottonmc.cotton.gui.widget.WPlayerInvPanel;
+import io.github.cottonmc.cotton.gui.widget.*;
 import net.minecraft.client.network.packet.GuiSlotUpdateS2CPacket;
 import net.minecraft.container.BlockContext;
 import net.minecraft.container.Slot;
@@ -20,9 +18,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeFinder;
-import net.minecraft.recipe.RecipeType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 import java.util.Optional;
@@ -41,27 +39,39 @@ public class ArtisCraftingController extends CottonScreenController {
 	private WItemSlot result;
 	private WPlayerInvPanel playerInv;
 
+	private int resultSlot = 0;
+	private int catalystSlot;
+	private int firstPlayerInvSlot;
+	private int firstPlayerHotbarSlot;
+	private int lastSlot;
+
 	public ArtisCraftingController(ArtisTableType type, int syncId, PlayerEntity player, BlockContext context) {
 		super(type, syncId, player.inventory);
+		catalystSlot = type.getWidth() * type.getHeight() + 1;
+		firstPlayerInvSlot = catalystSlot + 1;
+		firstPlayerHotbarSlot = firstPlayerInvSlot + 27;
+		lastSlot = firstPlayerHotbarSlot + 9;
 		this.type = type;
 		this.player = player;
 		this.context = context;
 		panel = new WPlainPanel();
 		this.setRootPanel(panel);
-		this.craftInv = new ArtisCraftingInventory(this, 3, 3);
+		this.craftInv = new ArtisCraftingInventory(this, type.getWidth(), type.getHeight());
 		this.resultInv = new CraftingResultInventory();
-		label = new WLabel(new TranslatableText("container." + type.getId().getNamespace() + "." + type.getId().getPath()), 4210752);
-		grid = new WItemSlot(craftInv, 0, 3, 3, false, true);
-		catalyst = new WItemSlot(craftInv, 9, 1, 1, false, true);
+		label = new WLabel(new TranslatableText("container." + type.getId().getNamespace() + "." + type.getId().getPath()), 0x404040);
+		grid = new WItemSlot(craftInv, 0, type.getWidth(), type.getHeight(), false, true);
+		catalyst = new WItemSlot(craftInv, craftInv.getInvSize() - 1, 1, 1, false, true);
 		result = new WArtisResultSlot(player, craftInv, resultInv, 0, 1, 1, true, true, syncId);
 		playerInv = new WPlayerInvPanel(player.inventory);
-		//TODO: arrow?
+		WSprite arrow = new WSprite(new Identifier(Artis.MODID, "textures/gui/arrow.png"));
+		ContainerLayout layout = new ContainerLayout(type.getWidth(), type.getHeight());
 
 		panel.add(label, 0, 0);
-		panel.add(result, 116, 34);
-		panel.add(grid, 22, 16);
-		panel.add(catalyst, 85, 34);
-		panel.add(playerInv, 0, 78);
+		panel.add(result, layout.getResultX(), layout.getResultY());
+		panel.add(grid, layout.getGridX(), layout.getGridY());
+		panel.add(catalyst, layout.getCatalystX(), layout.getCatalystY());
+		panel.add(playerInv, layout.getPlayerX(), layout.getPlayerY());
+		panel.add(arrow, layout.getArrowX(), layout.getArrowY(), 22, 15);
 
 		panel.validate(this);
 	}
@@ -114,12 +124,12 @@ public class ArtisCraftingController extends CottonScreenController {
 
 	@Override
 	public int getCraftingWidth() {
-		return 3;
+		return type.getWidth();
 	}
 
 	@Override
 	public int getCraftingHeight() {
-		return 3;
+		return type.getHeight();
 	}
 
 	@Override
@@ -129,12 +139,12 @@ public class ArtisCraftingController extends CottonScreenController {
 
 	@Override
 	public int getCraftingResultSlotIndex() {
-		return 0;
+		return resultSlot;
 	}
 
 	@Override
 	public int getCraftingSlotCount() {
-		return 11;
+		return firstPlayerInvSlot;
 	}
 
 	public void updateResult(int syncId, World world, PlayerEntity player, CraftingInventory craftInv, CraftingResultInventory resultInv) {
@@ -166,30 +176,30 @@ public class ArtisCraftingController extends CottonScreenController {
 	}
 
 	@Override
-	public ItemStack transferSlot(PlayerEntity player, int slotIndex) { // + 11
+	public ItemStack transferSlot(PlayerEntity player, int slotIndex) {
 		ItemStack stack = ItemStack.EMPTY;
 		Slot slot = this.slotList.get(slotIndex);
 		if (slot != null && slot.hasStack()) {
 			ItemStack toTake = slot.getStack();
 			stack = toTake.copy();
-			if (slotIndex == 0) {
+			if (slotIndex == resultSlot) {
 				this.context.run((world, pos) -> {
 					toTake.getItem().onCraft(toTake, world, player);
 				});
-				if (!this.insertItem(toTake, 11, 47, true)) {
+				if (!this.insertItem(toTake, firstPlayerInvSlot, lastSlot, true)) {
 					return ItemStack.EMPTY;
 				}
 
 				slot.onStackChanged(toTake, stack);
-			} else if (slotIndex >= 11 && slotIndex < 38) {
-				if (!this.insertItem(toTake, 38, 47, false)) {
+			} else if (slotIndex >= firstPlayerInvSlot && slotIndex < firstPlayerHotbarSlot) {
+				if (!this.insertItem(toTake, firstPlayerHotbarSlot, lastSlot, false)) {
 					return ItemStack.EMPTY;
 				}
-			} else if (slotIndex >= 38 && slotIndex < 47) {
-				if (!this.insertItem(toTake, 11, 38, false)) {
+			} else if (slotIndex >= firstPlayerHotbarSlot && slotIndex < lastSlot) {
+				if (!this.insertItem(toTake, firstPlayerInvSlot, firstPlayerHotbarSlot, false)) {
 					return ItemStack.EMPTY;
 				}
-			} else if (!this.insertItem(toTake, 11, 47, false)) {
+			} else if (!this.insertItem(toTake, firstPlayerInvSlot, lastSlot, false)) {
 				return ItemStack.EMPTY;
 			}
 
@@ -204,7 +214,7 @@ public class ArtisCraftingController extends CottonScreenController {
 			}
 
 			ItemStack takenStack = slot.onTakeItem(player, toTake);
-			if (slotIndex == 0) {
+			if (slotIndex == resultSlot) {
 				player.dropItem(takenStack, false);
 			}
 		}

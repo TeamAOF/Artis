@@ -9,7 +9,6 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeUnlocker;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.DefaultedList;
 
 public class ValidatedArtisResultSlot extends ValidatedSlot {

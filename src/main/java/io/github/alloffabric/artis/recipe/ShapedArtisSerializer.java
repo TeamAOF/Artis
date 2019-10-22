@@ -6,10 +6,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.alloffabric.artis.api.ArtisTableType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.ShapedRecipe;
 import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
@@ -20,9 +20,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class ShapedArtisSerializer implements RecipeSerializer<ShapedArtisRecipe> {
-	private RecipeType type;
+	private ArtisTableType type;
 
-	public ShapedArtisSerializer(RecipeType type) {
+	public ShapedArtisSerializer(ArtisTableType type) {
 		this.type = type;
 	}
 
@@ -118,17 +118,17 @@ public class ShapedArtisSerializer implements RecipeSerializer<ShapedArtisRecipe
 		return map_1;
 	}
 
-	private static String[] getPattern(JsonArray array) {
+	private String[] getPattern(JsonArray array) {
 		String[] pattern = new String[array.size()];
-		if (pattern.length > 3) {
-			throw new JsonSyntaxException("Invalid pattern: too many rows, 3 is maximum");
+		if (pattern.length > type.getHeight()) {
+			throw new JsonSyntaxException("Invalid pattern for " + type.getId().toString() + ": too many rows, " + type.getHeight() + " is maximum");
 		} else if (pattern.length == 0) {
 			throw new JsonSyntaxException("Invalid pattern: empty pattern not allowed");
 		} else {
 			for(int i = 0; i < pattern.length; ++i) {
 				String row = JsonHelper.asString(array.get(i), "pattern[" + i + "]");
-				if (row.length() > 3) {
-					throw new JsonSyntaxException("Invalid pattern: too many columns, 3 is maximum");
+				if (row.length() > type.getWidth()) {
+					throw new JsonSyntaxException("Invalid pattern for " + type.getId().toString() + ": too many columns, " + type.getWidth() + " is maximum");
 				}
 
 				if (i > 0 && pattern[0].length() != row.length()) {
