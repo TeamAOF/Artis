@@ -10,6 +10,8 @@ import io.github.cottonmc.cotton.gui.widget.WPlainPanel;
 import io.github.cottonmc.cotton.gui.widget.WPlayerInvPanel;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingResultInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.recipe.Recipe;
 import net.minecraft.text.TranslatableText;
 
 public class ArtisCraftingController extends CottonScreenController {
@@ -85,5 +87,36 @@ public class ArtisCraftingController extends CottonScreenController {
 				}
 			}
 		};
+	}
+
+	@Override
+	public void close(PlayerEntity player) {
+		super.close(player);
+		dropInventory(player, player.world, craftInv);
+	}
+
+	@Override
+	public int getCraftingWidth() {
+		return 3;
+	}
+
+	@Override
+	public int getCraftingHeight() {
+		return 3;
+	}
+
+	@Override
+	public boolean matches(Recipe<? super Inventory> recipe) {
+		return recipe.matches(craftInv, player.world);
+	}
+
+	@Override
+	public int getCraftingResultSlotIndex() {
+		return 10;
+	}
+
+	@Override
+	public int getCraftingSlotCount() {
+		return 10;
 	}
 }
