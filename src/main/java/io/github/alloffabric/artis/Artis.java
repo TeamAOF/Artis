@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.client.screen.ScreenProviderRegistry;
 import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
+import net.minecraft.container.BlockContext;
 import net.minecraft.container.Container;
 import net.minecraft.item.*;
 import net.minecraft.util.Identifier;
@@ -42,7 +43,7 @@ public class Artis implements ModInitializer {
 
 	public static Block registerTable(ArtisTableType type) {
 		Identifier id = type.getId();
-		ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisCraftingController(type, syncId, player));
+		ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisCraftingController(type, syncId, player, BlockContext.create(player.world, buf.readBlockPos())));
 		ScreenProviderRegistry.INSTANCE.registerFactory(id, controller -> new ArtisCraftingScreen((ArtisCraftingController) controller, ((ArtisCraftingController) controller).getPlayer()));
 		Block block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type));
 		Registry.register(Registry.ITEM, id, new BlockItem(block, new Item.Settings().group(ARTIS_GROUP)));

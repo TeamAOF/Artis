@@ -1,5 +1,6 @@
 package io.github.alloffabric.artis.recipe;
 
+import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.inventory.ArtisCraftingInventory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
@@ -11,7 +12,7 @@ import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-public class ShapelessArtisRecipe extends ShapelessRecipe {
+public class ShapelessArtisRecipe extends ShapelessRecipe implements ArtisCraftingRecipe {
 	private RecipeType type;
 	private RecipeSerializer serializer;
 	private Ingredient catalyst;
@@ -45,6 +46,11 @@ public class ShapelessArtisRecipe extends ShapelessRecipe {
 	}
 
 	@Override
+	public ItemStack craft(CraftingInventory inv) {
+		return this.getOutput().copy();
+	}
+
+	@Override
 	public RecipeType getType() {
 		return type;
 	}
@@ -54,10 +60,12 @@ public class ShapelessArtisRecipe extends ShapelessRecipe {
 		return serializer;
 	}
 
+	@Override
 	public Ingredient getCatalyst() {
 		return catalyst;
 	}
 
+	@Override
 	public int getCatalystCost() {
 		return catalystCost;
 	}

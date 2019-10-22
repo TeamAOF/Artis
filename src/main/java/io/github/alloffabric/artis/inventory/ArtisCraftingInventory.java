@@ -1,6 +1,8 @@
 package io.github.alloffabric.artis.inventory;
 
+import io.github.alloffabric.artis.api.ArtisTableType;
 import net.minecraft.container.Container;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
@@ -69,6 +71,14 @@ public class ArtisCraftingInventory extends CraftingInventory {
 	}
 
 	public ItemStack getCatalyst() {
-		return getInvStack(getWidth() * getHeight() + 1);
+		return getInvStack(getWidth() * getHeight());
+	}
+
+	public ArtisTableType getType() {
+		return ((ArtisCraftingController)container).getTableType();
+	}
+
+	public PlayerEntity getPlayer() {
+		return ((ArtisCraftingController)container).getPlayer();
 	}
 }

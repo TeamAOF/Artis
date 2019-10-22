@@ -1,7 +1,9 @@
 package io.github.alloffabric.artis.recipe;
 
+import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.inventory.ArtisCraftingInventory;
 import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
@@ -11,7 +13,9 @@ import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-public class ShapedArtisRecipe extends ShapedRecipe {
+import java.util.Random;
+
+public class ShapedArtisRecipe extends ShapedRecipe implements ArtisCraftingRecipe {
 	private RecipeType type;
 	private RecipeSerializer serializer;
 	private Ingredient catalyst;
@@ -41,7 +45,47 @@ public class ShapedArtisRecipe extends ShapedRecipe {
 		} else {
 			if (toTest.getCount() < catalystCost) return false;
 		}
-		return super.method_17728(inventory, world); //ShapedRecipe.matches (mapping gets lost because of generics)
+
+		for(int i = 0; i <= artis.getWidth() - this.getWidth(); ++i) {
+			for(int j = 0; j <= artis.getHeight() - this.getHeight(); ++j) {
+				if (this.matchesSmall(artis, i, j, true)) {
+					return true;
+				}
+
+				if (this.matchesSmall(artis, i, j, false)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean matchesSmall(CraftingInventory inventory, int maxWidth, int maxHeight, boolean tall) {
+		for(int i = 0; i < inventory.getWidth(); ++i) {
+			for(int j = 0; j < inventory.getHeight(); ++j) {
+				int x = i - maxWidth;
+				int y = j - maxHeight;
+				Ingredient ingredient = Ingredient.EMPTY;
+				if (x >= 0 && y >= 0 && x < this.getWidth() && y < this.getHeight()) {
+					if (tall) {
+						ingredient = this.getPreviewInputs().get(this.getWidth() - x - 1 + y * this.getWidth());
+					} else {
+						ingredient = this.getPreviewInputs().get(x + y * this.getWidth());
+					}
+				}
+
+				if (!ingredient.test(inventory.getInvStack(i + j * inventory.getWidth()))) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public ItemStack craft(CraftingInventory inv) {
+		return this.getOutput().copy();
 	}
 
 	@Override
@@ -54,11 +98,14 @@ public class ShapedArtisRecipe extends ShapedRecipe {
 		return serializer;
 	}
 
+	@Override
 	public Ingredient getCatalyst() {
 		return catalyst;
 	}
 
+	@Override
 	public int getCatalystCost() {
 		return catalystCost;
 	}
+
 }
