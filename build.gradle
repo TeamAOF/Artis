@@ -49,6 +49,7 @@ dependencies {
 
 	modApi "io.github.cottonmc:LibCD:1.5.0+1.14.4"
 	modApi "io.github.cottonmc:LibGui:1.3.2"
+	modApi "io.github.cottonmc:StaticData:1.1.2"
 }
 
 processResources {

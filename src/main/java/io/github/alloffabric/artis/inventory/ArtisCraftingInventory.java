@@ -2,83 +2,73 @@ package io.github.alloffabric.artis.inventory;
 
 import net.minecraft.container.Container;
 import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeFinder;
+import net.minecraft.util.DefaultedList;
 
 public class ArtisCraftingInventory extends CraftingInventory {
-	private ItemStack catalyst = ItemStack.EMPTY;
-	private int catalystSlot;
+	private final DefaultedList<ItemStack> stacks;
 	private Container container;
 
 	public ArtisCraftingInventory(Container container, int width, int height) {
 		super(container, width, height);
+		this.stacks = DefaultedList.ofSize((width * height) + 1, ItemStack.EMPTY);
 		this.container = container;
-		this.catalystSlot = (width * height) + 1;
 	}
 
 	@Override
 	public int getInvSize() {
-		return super.getInvSize() + 1;
+		return stacks.size();
 	}
 
 	@Override
 	public boolean isInvEmpty() {
-		if (!catalyst.isEmpty()) return false;
-		return super.isInvEmpty();
+		for (ItemStack stack : stacks) {
+			if (!stack.isEmpty()) return false;
+		}
+		return true;
 	}
 
 	@Override
 	public ItemStack getInvStack(int slot) {
-		if (slot == catalystSlot) return catalyst;
-		return super.getInvStack(slot);
+		return stacks.get(slot);
 	}
 
 	@Override
 	public ItemStack removeInvStack(int slot) {
-		if (slot == catalystSlot) {
-			ItemStack copy = catalyst.copy();
-			catalyst = ItemStack.EMPTY;
-			return copy;
-		}
-		return super.removeInvStack(slot);
+		return Inventories.removeStack(stacks, slot);
 	}
 
 	@Override
 	public ItemStack takeInvStack(int slot, int amount) {
-		if (slot == catalystSlot) {
-			ItemStack stack = catalyst.split(amount);
-			if (!stack.isEmpty()) {
-				this.container.onContentChanged(this);
-			}
-			return stack;
-		} else {
-			return super.takeInvStack(slot, amount);
+		ItemStack stack = Inventories.splitStack(this.stacks, slot, amount);
+		if (!stack.isEmpty()) {
+			this.container.onContentChanged(this);
 		}
+
+		return stack;
 	}
 
 	@Override
 	public void setInvStack(int slot, ItemStack stack) {
-		if (slot == catalystSlot) {
-			catalyst = stack;
-			this.container.onContentChanged(this);
-		} else {
-			super.setInvStack(slot, stack);
-		}
+		this.stacks.set(slot, stack);
+		this.container.onContentChanged(this);
 	}
 
 	@Override
 	public void clear() {
-		catalyst = ItemStack.EMPTY;
-		super.clear();
+		this.stacks.clear();
 	}
 
 	@Override
 	public void provideRecipeInputs(RecipeFinder finder) {
-		finder.addNormalItem(catalyst);
-		super.provideRecipeInputs(finder);
+		for (ItemStack stack : stacks) {
+			finder.addNormalItem(stack);
+		}
 	}
 
 	public ItemStack getCatalyst() {
-		return catalyst;
+		return getInvStack(getWidth() * getHeight() + 1);
 	}
 }

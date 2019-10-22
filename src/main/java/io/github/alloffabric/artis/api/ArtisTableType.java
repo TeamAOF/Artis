@@ -9,9 +9,18 @@ import net.minecraft.util.registry.Registry;
 
 public class ArtisTableType implements RecipeType {
 	private Identifier id;
+	private int color = 0;
+	private boolean hasColor = false;
 	private RecipeSerializer shaped;
 	private RecipeSerializer shapeless;
 
+	public ArtisTableType(Identifier id, int color) {
+		this(id);
+		this.color = 0xFF000000 | color;
+		this.hasColor = true;
+	}
+
+	//TODO: block settings?
 	public ArtisTableType(Identifier id) {
 		this.id = id;
 		Identifier shapedId = new Identifier(id.getNamespace(), id.getPath() + "_shaped");
@@ -30,5 +39,13 @@ public class ArtisTableType implements RecipeType {
 
 	public RecipeSerializer getShapeless() {
 		return shapeless;
+	}
+
+	public boolean hasColor() {
+		return hasColor;
+	}
+
+	public int getColor() {
+		return color;
 	}
 }
