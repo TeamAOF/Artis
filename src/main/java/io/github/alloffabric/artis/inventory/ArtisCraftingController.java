@@ -13,13 +13,17 @@ import net.minecraft.container.BlockContext;
 import net.minecraft.container.Slot;
 import net.minecraft.container.SlotActionType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeFinder;
+import net.minecraft.recipe.RecipeType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.world.World;
 
 import java.util.Optional;
 
@@ -133,23 +137,27 @@ public class ArtisCraftingController extends CottonScreenController {
 		return 11;
 	}
 
+	public void updateResult(int syncId, World world, PlayerEntity player, CraftingInventory craftInv, CraftingResultInventory resultInv) {
+		if (!world.isClient) {
+			ServerPlayerEntity serverPlayer = (ServerPlayerEntity)player;
+			ItemStack stack = ItemStack.EMPTY;
+			Optional<CraftingRecipe> opt = world.getServer().getRecipeManager().getFirstMatch(this.type, craftInv, world);
+			if (opt.isPresent()) {
+				CraftingRecipe recipe = opt.get();
+				if (resultInv.shouldCraftRecipe(world, serverPlayer, recipe)) {
+					stack = recipe.craft(craftInv);
+				}
+			}
+
+			resultInv.setInvStack(0, stack);
+			serverPlayer.networkHandler.sendPacket(new GuiSlotUpdateS2CPacket(syncId, 0, stack));
+		}
+	}
+
 	@Override
 	public void onContentChanged(Inventory inv) {
 		this.context.run((world, pos) -> {
-			if (!world.isClient) {
-				ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-				ItemStack stack = ItemStack.EMPTY;
-
-				Optional<CraftingRecipe> opt = world.getServer().getRecipeManager().getFirstMatch(type, inv, world);
-				if (opt.isPresent()) {
-					CraftingRecipe craftingRecipe_1 = opt.get();
-					if (resultInv.shouldCraftRecipe(world, serverPlayer, craftingRecipe_1)) {
-						stack = craftingRecipe_1.craft((ArtisCraftingInventory)inv);
-					}
-				}
-				resultInv.setInvStack(0, stack);
-				serverPlayer.networkHandler.sendPacket(new GuiSlotUpdateS2CPacket(syncId, 0, stack));
-			}
+			updateResult(this.syncId, world, this.player, this.craftInv, this.resultInv);
 		});
 	}
 
@@ -211,5 +219,21 @@ public class ArtisCraftingController extends CottonScreenController {
 		} else {
 			return super.onSlotClick(slotNumber, button, action, player);
 		}
+	}
+
+	@Override
+	public void populateRecipeFinder(RecipeFinder finder) {
+		this.craftInv.provideRecipeInputs(finder);
+	}
+
+	@Override
+	public void clearCraftingSlots() {
+		this.craftInv.clear();
+		this.resultInv.clear();
+	}
+
+	@Override
+	public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
+		return slot.inventory != this.resultInv && super.canInsertIntoSlot(stack, slot);
 	}
 }
