@@ -1,19 +1,17 @@
 package io.github.alloffabric.artis;
 
-import blue.endless.jankson.JsonObject;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.block.ArtisTableBlock;
+import io.github.alloffabric.artis.compat.libcd.ArtisTweaker;
 import io.github.alloffabric.artis.inventory.ArtisCraftingController;
 import io.github.alloffabric.artis.inventory.ArtisCraftingScreen;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.client.screen.ScreenProviderRegistry;
 import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
-import net.minecraft.block.Material;
 import net.minecraft.container.BlockContext;
-import net.minecraft.container.Container;
 import net.minecraft.item.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -32,13 +30,13 @@ public class Artis implements ModInitializer {
 
 	public static final ItemGroup ARTIS_GROUP = FabricItemGroupBuilder.build(new Identifier(MODID, "artis_group"), () -> new ItemStack(Items.CRAFTING_TABLE));
 
-	public static Block TEST_TABLE;
-
 	@Override
 	public void onInitialize() {
-//		TEST_TABLE = registerTable(new ArtisTableType(new Identifier(MODID, "test_table"), 0x7F76D1));
 		ArtisData.loadData();
 		ArtisData.loadConfig();
+		if (FabricLoader.getInstance().isModLoaded("libcd")) {
+			ArtisTweaker.init();
+		}
 	}
 
 	public static Block registerTable(ArtisTableType type) {
@@ -47,6 +45,7 @@ public class Artis implements ModInitializer {
 		ScreenProviderRegistry.INSTANCE.registerFactory(id, controller -> new ArtisCraftingScreen((ArtisCraftingController) controller, ((ArtisCraftingController) controller).getPlayer()));
 		Block block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type));
 		Registry.register(Registry.ITEM, id, new BlockItem(block, new Item.Settings().group(ARTIS_GROUP)));
+		Registry.register(ARTIS_TABLE_TYPES, id, type);
 		return block;
 	}
 }

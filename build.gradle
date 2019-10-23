@@ -38,6 +38,7 @@ minecraft {
 repositories {
 	mavenCentral()
 	maven { url "http://server.bbkr.space:8081/artifactory/libs-release" }
+	maven { url "https://minecraft.curseforge.com/api/maven" }
 }
 
 dependencies {
@@ -50,6 +51,9 @@ dependencies {
 	modApi "io.github.cottonmc:LibCD:1.5.1+1.14.4"
 	modApi "io.github.cottonmc:LibGui:1.3.2"
 	modApi "io.github.cottonmc:StaticData:1.1.2"
+	modImplementation("me.shedaniel:RoughlyEnoughItems:3.0-pre+build.1") { exclude module: "ModMenu" }
+
+
 }
 
 processResources {
