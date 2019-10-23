@@ -75,12 +75,13 @@ public class ArtisData {
 		Identifier id = new Identifier(key);
 		int width = json.get(Integer.class, "width");
 		int height = json.get(Integer.class, "height");
-		if (width > 7) {
-			Artis.logger.error("[Artis] Table type named {} has too many columns, clamping it to 7", key);
-			width = 7;
+		if (width > 9) {
+			Artis.logger.error("[Artis] Table type named {} has too many columns, clamping it to 9", key);
+			width = 9;
 		}
-		if (height > 7) {
-			Artis.logger.error("[Artis] Table type named {} has too many rows, clamping it to 7", key);
+		if (height > 9) {
+			Artis.logger.error("[Artis] Table type named {} has too many rows, clamping it to 9", key);
+			height = 9;
 		}
 		if (json.containsKey("color")) {
 			return new ArtisTableType(id, width, height, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
