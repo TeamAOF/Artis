@@ -75,6 +75,8 @@ public class ArtisData {
 		Identifier id = new Identifier(key);
 		int width = json.get(Integer.class, "width");
 		int height = json.get(Integer.class, "height");
+		if (width > 7) throw new IllegalArgumentException("Artis tables more than 7 slots wide are not usable!");
+		if (height > 7) throw new IllegalArgumentException("Artis tables more than 7 slots tall are not usable!");
 		if (json.containsKey("color")) {
 			return new ArtisTableType(id, width, height, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
 		}

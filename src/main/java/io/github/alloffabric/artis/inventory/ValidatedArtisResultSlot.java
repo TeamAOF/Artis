@@ -97,9 +97,10 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
 				if (!remainder.isEmpty()) {
 					this.craftingInv.setInvStack(catalystSlot, remainder);
 				} else {
-					ItemStack catalyst = this.craftingInv.getCatalyst();
+					ItemStack catalyst = this.craftingInv.getCatalyst().copy();
 					if (catalyst.isDamageable()) {
-						catalyst.damage(recipe.getCatalystCost(), player, (user) -> {} );
+						catalyst.damage(recipe.getCatalystCost(), craftingInv.getPlayer(), (user) -> user.sendToolBreakStatus(user.getActiveHand()));
+						System.out.println(catalyst.getDamage());
 					} else {
 						catalyst.decrement(recipe.getCatalystCost());
 					}

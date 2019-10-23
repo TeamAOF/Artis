@@ -2,6 +2,7 @@ package io.github.alloffabric.artis.inventory;
 
 import io.github.alloffabric.artis.api.ArtisTableType;
 import net.minecraft.container.Container;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
@@ -10,9 +11,9 @@ import net.minecraft.util.DefaultedList;
 
 public class ArtisCraftingInventory extends CraftingInventory {
 	private final DefaultedList<ItemStack> stacks;
-	private Container container;
+	private ArtisCraftingController container;
 
-	public ArtisCraftingInventory(Container container, int width, int height) {
+	public ArtisCraftingInventory(ArtisCraftingController container, int width, int height) {
 		super(container, width, height);
 		this.stacks = DefaultedList.ofSize((width * height) + 1, ItemStack.EMPTY);
 		this.container = container;
@@ -74,6 +75,10 @@ public class ArtisCraftingInventory extends CraftingInventory {
 	}
 
 	public ArtisTableType getType() {
-		return ((ArtisCraftingController)container).getTableType();
+		return (container).getTableType();
+	}
+
+	public PlayerEntity getPlayer() {
+		return container.getPlayer();
 	}
 }
