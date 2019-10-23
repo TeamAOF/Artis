@@ -1,6 +1,7 @@
 package io.github.alloffabric.artis.inventory;
 
 import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
+import io.github.alloffabric.artis.api.SpecialCatalyst;
 import io.github.cottonmc.cotton.gui.ValidatedSlot;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.client.network.packet.GuiSlotUpdateS2CPacket;
@@ -100,6 +101,8 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
 					ItemStack catalyst = this.craftingInv.getCatalyst().copy();
 					if (catalyst.isDamageable()) {
 						catalyst.damage(recipe.getCatalystCost(), craftingInv.getPlayer(), (user) -> user.sendToolBreakStatus(user.getActiveHand()));
+					} else if (catalyst.getItem() instanceof SpecialCatalyst) {
+						catalyst = ((SpecialCatalyst)catalyst.getItem()).consume(catalyst, recipe.getCatalystCost());
 					} else {
 						catalyst.decrement(recipe.getCatalystCost());
 					}

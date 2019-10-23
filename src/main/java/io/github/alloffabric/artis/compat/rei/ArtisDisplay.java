@@ -7,7 +7,6 @@ import net.minecraft.util.Identifier;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public class ArtisDisplay implements RecipeDisplay {
 	private Item icon;

@@ -1,6 +1,7 @@
 package io.github.alloffabric.artis.recipe;
 
 import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
+import io.github.alloffabric.artis.api.SpecialCatalyst;
 import io.github.alloffabric.artis.inventory.ArtisCraftingInventory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
@@ -39,6 +40,8 @@ public class ShapelessArtisRecipe extends ShapelessRecipe implements ArtisCrafti
 		if (!catalyst.test(toTest)) return false;
 		if (toTest.isDamageable()) {
 			if (toTest.getMaxDamage() - toTest.getDamage() < catalystCost) return false;
+		} else if (toTest.getItem() instanceof SpecialCatalyst) {
+			if (!((SpecialCatalyst) toTest.getItem()).matches(toTest, catalystCost)) return false;
 		} else {
 			if (toTest.getCount() < catalystCost) return false;
 		}
