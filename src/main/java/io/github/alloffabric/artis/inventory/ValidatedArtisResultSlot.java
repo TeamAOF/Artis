@@ -100,7 +100,6 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
 					ItemStack catalyst = this.craftingInv.getCatalyst().copy();
 					if (catalyst.isDamageable()) {
 						catalyst.damage(recipe.getCatalystCost(), craftingInv.getPlayer(), (user) -> user.sendToolBreakStatus(user.getActiveHand()));
-						System.out.println(catalyst.getDamage());
 					} else {
 						catalyst.decrement(recipe.getCatalystCost());
 					}
