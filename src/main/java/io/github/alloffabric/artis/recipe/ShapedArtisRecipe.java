@@ -2,7 +2,9 @@ package io.github.alloffabric.artis.recipe;
 
 import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.SpecialCatalyst;
+import io.github.alloffabric.artis.compat.nbtcrafting.NbtCraftingUtil;
 import io.github.alloffabric.artis.inventory.ArtisCraftingInventory;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,8 +15,6 @@ import net.minecraft.recipe.ShapedRecipe;
 import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
-
-import java.util.Random;
 
 public class ShapedArtisRecipe extends ShapedRecipe implements ArtisCraftingRecipe {
 	private RecipeType type;
@@ -88,6 +88,9 @@ public class ShapedArtisRecipe extends ShapedRecipe implements ArtisCraftingReci
 
 	@Override
 	public ItemStack craft(CraftingInventory inv) {
+		if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
+			return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
+		}
 		return this.getOutput().copy();
 	}
 
