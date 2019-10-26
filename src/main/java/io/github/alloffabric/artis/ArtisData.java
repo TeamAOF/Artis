@@ -8,16 +8,16 @@ import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.cottonmc.jankson.JanksonFactory;
 import io.github.cottonmc.staticdata.StaticData;
 import io.github.cottonmc.staticdata.StaticDataItem;
+import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ArtisData {
 	public static final Jankson jankson = JanksonFactory.createJankson();
@@ -65,7 +65,13 @@ public class ArtisData {
 			if (elem instanceof JsonObject) {
 				JsonObject config = (JsonObject)elem;
 				ArtisTableType type = getType(key, config);
-				Artis.registerTable(type);
+				Optional<Block.Settings> settings = Optional.empty();
+				//TODO: better block settings, eventually
+				if (config.containsKey("settings")) {
+					Identifier id = new Identifier(config.get(String.class, "settings"));
+					settings = Optional.of(FabricBlockSettings.copy(Registry.BLOCK.get(id)).build());
+				}
+				Artis.registerTable(type, settings);
 			}
 		}
 	}
