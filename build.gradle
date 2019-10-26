@@ -55,6 +55,9 @@ dependencies {
 	modImplementation("me.shedaniel:RoughlyEnoughItems:3.0-pre+build.1") { exclude module: "ModMenu" }
 	modApi "com.github.siphalor:nbt-crafting:1.2.5"
 
+	include "io.github.cottonmc:LibGui:1.3.2"
+	include "io.github.cottonmc:StaticData:1.1.2"
+
 }
 
 processResources {
