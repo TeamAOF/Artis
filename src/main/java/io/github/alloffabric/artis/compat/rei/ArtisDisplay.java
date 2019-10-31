@@ -1,49 +1,93 @@
 package io.github.alloffabric.artis.compat.rei;
 
+import io.github.alloffabric.artis.Artis;
+import io.github.alloffabric.artis.api.ArtisTableType;
+import io.github.alloffabric.artis.recipe.ShapedArtisRecipe;
+import io.github.alloffabric.artis.recipe.ShapelessArtisRecipe;
 import me.shedaniel.rei.api.RecipeDisplay;
+import me.shedaniel.rei.plugin.crafting.DefaultCraftingDisplay;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.ShapedRecipe;
+import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class ArtisDisplay implements RecipeDisplay {
-	private Item icon;
-	private Identifier id;
-	private int page;
-	private List<ItemStack> inputs;
-	private List<ItemStack> allInputs;
+public class ArtisDisplay implements DefaultCraftingDisplay {
+    private Recipe display;
+    private List<List<ItemStack>> input;
+    private List<ItemStack> output;
+    private Ingredient catalyst;
+    private int catalystCost;
 
-	public ArtisDisplay(Item icon, Identifier id, int page, List<ItemStack> inputs, List<ItemStack> allInputs) {
-		this.icon = icon;
-		this.id = id;
-		this.page = page;
-		this.inputs = inputs;
-		this.allInputs = allInputs;
-	}
+    public ArtisDisplay(Recipe recipe) {
+        if (recipe instanceof ShapedArtisRecipe) {
+            this.display = recipe;
+            this.input = ((ShapedArtisRecipe)recipe).getPreviewInputs().stream().map(i -> Arrays.asList(i.getStackArray())).collect(Collectors.toList());
+            this.output = Collections.singletonList(recipe.getOutput());
+            this.catalyst = ((ShapedArtisRecipe)recipe).getCatalyst();
+            this.catalystCost = ((ShapedArtisRecipe)recipe).getCatalystCost();
+        } else if (recipe instanceof ShapelessArtisRecipe) {
+            this.display = recipe;
+            this.input = ((ShapelessArtisRecipe)recipe).getPreviewInputs().stream().map(i -> Arrays.asList(i.getStackArray())).collect(Collectors.toList());
+            this.output = Collections.singletonList(recipe.getOutput());
+            this.catalyst = ((ShapelessArtisRecipe)recipe).getCatalyst();
+            this.catalystCost = ((ShapelessArtisRecipe)recipe).getCatalystCost();
+        }
+    }
 
-	public int getPage() {
-		return page;
-	}
+    @Override
+    public Identifier getRecipeCategory() {
+        return ((ArtisTableType) display.getType()).getId();
+    }
 
-	@Override
-	public List<List<ItemStack>> getInput() {
-		return Collections.singletonList(inputs);
-	}
+    @Override
+    public Optional<Identifier> getRecipeLocation() {
+        return Optional.ofNullable(display).map(Recipe::getId);
+    }
 
-	@Override
-	public List<ItemStack> getOutput() {
-		return Collections.singletonList(new ItemStack(icon));
-	}
+    @Override
+    public List<List<ItemStack>> getInput() {
+        return input;
+    }
 
-	@Override
-	public Identifier getRecipeCategory() {
-		return id;
-	}
+    @Override
+    public List<ItemStack> getOutput() {
+        return output;
+    }
 
-	@Override
-	public List<List<ItemStack>> getRequiredItems() {
-		return Collections.singletonList(allInputs);
-	}
+    public Ingredient getCatalyst() {
+        return catalyst;
+    }
+
+    public int getCatalystCost() {
+        return catalystCost;
+    }
+
+    @Override
+    public List<List<ItemStack>> getRequiredItems() {
+        return input;
+    }
+
+    @Override
+    public int getHeight() {
+        return ((ArtisTableType) display.getType()).getHeight();
+    }
+
+    @Override
+    public Optional<Recipe<?>> getOptionalRecipe() {
+        return Optional.ofNullable(display);
+    }
+
+    @Override
+    public int getWidth() {
+        return ((ArtisTableType) display.getType()).getWidth();
+    }
 }
