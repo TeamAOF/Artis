@@ -21,12 +21,15 @@ import net.minecraft.util.registry.SimpleRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class Artis implements ModInitializer {
 	public static final String MODID = "artis";
 
 	public static final Logger logger = LogManager.getLogger();
+
+    public static final ArrayList<ArtisTableBlock> ARTIS_TABLE_BLOCKS = new ArrayList<>();
 
 	public static final Registry<ArtisTableType> ARTIS_TABLE_TYPES = new SimpleRegistry<>();
 
@@ -45,7 +48,8 @@ public class Artis implements ModInitializer {
 		Identifier id = type.getId();
 		ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisCraftingController(type, syncId, player, BlockContext.create(player.world, buf.readBlockPos())));
 		ScreenProviderRegistry.INSTANCE.registerFactory(id, controller -> new ArtisCraftingScreen((ArtisCraftingController) controller, ((ArtisCraftingController) controller).getPlayer()));
-		Block block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type, settings.orElse(FabricBlockSettings.copy(Blocks.CRAFTING_TABLE).build())));
+		ArtisTableBlock block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type, settings.orElse(FabricBlockSettings.copy(Blocks.CRAFTING_TABLE).build())));
+		ARTIS_TABLE_BLOCKS.add(block);
 		Registry.register(Registry.ITEM, id, new BlockItem(block, new Item.Settings().group(ARTIS_GROUP)));
 		Registry.register(ARTIS_TABLE_TYPES, id, type);
 		return block;

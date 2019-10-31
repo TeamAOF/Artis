@@ -14,6 +14,9 @@
   "entrypoints": {
     "main": [
       "io.github.alloffabric.artis.Artis"
+    ],
+    "rei_plugins_v0": [
+      "io.github.alloffabric.artis.compat.rei.ArtisREIPlugin"
     ]
   },
   "mixins": [

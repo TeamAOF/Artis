@@ -8,10 +8,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.ShapedRecipe;
+import net.minecraft.recipe.*;
 import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -35,7 +32,7 @@ public class ShapedArtisRecipe extends ShapedRecipe implements ArtisCraftingReci
 		return true;
 	}
 
-	@Override
+    @Override
 	public boolean matches(CraftingInventory inventory, World world) {
 		if (!(inventory instanceof ArtisCraftingInventory)) return false;
 		ArtisCraftingInventory artis = (ArtisCraftingInventory)inventory;

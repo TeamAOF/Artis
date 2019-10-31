@@ -18,6 +18,10 @@ public class ArtisTableBlock extends Block {
 		this.type = type;
 	}
 
+    public ArtisTableType getType() {
+        return type;
+    }
+
 	@Override
 	public boolean activate(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 		if (!world.isClient) ContainerProviderRegistry.INSTANCE.openContainer(type.getId(), player, buf -> buf.writeBlockPos(pos));
