@@ -11,6 +11,6 @@ import java.util.Optional;
 public class NbtCraftingUtil {
 	public static ItemStack getOutputStack(ItemStack output, DefaultedList<Ingredient> ingredients, CraftingInventory inv) {
 		ItemStack stack = RecipeUtil.getDollarAppliedOutputStack(output, ingredients, inv);
-		return Optional.ofNullable(stack).orElse(output);
+		return Optional.ofNullable(stack).orElse(output).copy();
 	}
 }
