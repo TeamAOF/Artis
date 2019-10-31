@@ -18,7 +18,6 @@ import net.minecraft.recipe.Recipe;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -66,8 +65,10 @@ public class ArtisCategory<R extends Recipe> implements RecipeCategory<ArtisDisp
             @Override
             public void render(int mouseX, int mouseY, float delta) {
                 if (this.isRendering()) {
-                    Color color = new Color(artisTableType.getColor());
-                    GlStateManager.color4f(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F);
+                    int r = (artisTableType.getColor() & 0xFF0000) >> 16;
+                    int g = (artisTableType.getColor() & 0xFF00) >> 8;
+                    int b = (artisTableType.getColor() & 0xFF);
+                    GlStateManager.color4f(r / 255F, g / 255F, b / 255F, 1.0F);
                     GuiLighting.disable();
                     this.minecraft.getTextureManager().bindTexture(new Identifier("roughlyenoughitems", "textures/gui/recipecontainer.png"));
                     int x = this.getBounds().x;
