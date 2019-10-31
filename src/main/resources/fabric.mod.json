@@ -15,13 +15,13 @@
     "main": [
       "io.github.alloffabric.artis.Artis"
     ],
+    "client": [
+      "io.github.alloffabric.artis.ArtisClient"
+    ],
     "rei_plugins_v0": [
       "io.github.alloffabric.artis.compat.rei.ArtisREIPlugin"
     ]
   },
-  "mixins": [
-    "mixins.starter.json"
-  ],
   "depends": {
     "fabricloader": ">=0.4.0"
   }

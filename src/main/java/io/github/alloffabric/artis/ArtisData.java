@@ -89,10 +89,11 @@ public class ArtisData {
 			Artis.logger.error("[Artis] Table type named {} has too many rows, clamping it to 9", key);
 			height = 9;
 		}
+		boolean makeModel = json.containsKey("model")? json.get(Boolean.class, ("model")) : false;
 		if (json.containsKey("color")) {
-			return new ArtisTableType(id, width, height, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
+			return new ArtisTableType(id, width, height, makeModel, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
 		}
-		return new ArtisTableType(id, width, height);
+		return new ArtisTableType(id, width, height, makeModel);
 	}
 
 }

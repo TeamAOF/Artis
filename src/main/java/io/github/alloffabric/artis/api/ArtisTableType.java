@@ -12,21 +12,23 @@ public class ArtisTableType implements RecipeType {
 	private int width;
 	private int height;
 	private int color = 0;
+	private boolean makeModel;
 	private boolean hasColor = false;
 	private RecipeSerializer shaped;
 	private RecipeSerializer shapeless;
 
-	public ArtisTableType(Identifier id, int width, int height, int color) {
-		this(id, width, height);
+	public ArtisTableType(Identifier id, int width, int height, boolean makeModel, int color) {
+		this(id, width, height, makeModel);
 		this.color = 0xFF000000 | color;
 		this.hasColor = true;
 	}
 
 	//TODO: block settings?
-	public ArtisTableType(Identifier id, int width, int height) {
+	public ArtisTableType(Identifier id, int width, int height, boolean makeModel) {
 		this.id = id;
 		this.width = width;
 		this.height = height;
+		this.makeModel = makeModel;
 		Identifier shapedId = new Identifier(id.getNamespace(), id.getPath() + "_shaped");
 		Identifier shapelessId = new Identifier(id.getNamespace(), id.getPath() + "_shapeless");
 		this.shaped = Registry.register(Registry.RECIPE_SERIALIZER, shapedId, new ShapedArtisSerializer(this));
@@ -51,6 +53,10 @@ public class ArtisTableType implements RecipeType {
 
 	public int getHeight() {
 		return height;
+	}
+
+	public boolean shouldMakeModel() {
+		return makeModel;
 	}
 
 	public boolean hasColor() {
