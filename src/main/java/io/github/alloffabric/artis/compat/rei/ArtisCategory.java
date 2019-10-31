@@ -18,7 +18,6 @@ import net.minecraft.recipe.Recipe;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -60,14 +59,16 @@ public class ArtisCategory<R extends Recipe> implements RecipeCategory<ArtisDisp
 
 	@Override
 	public List<Widget> setupDisplay(Supplier<ArtisDisplay> recipeDisplaySupplier, Rectangle bounds) {
-        Point startPoint = new Point(bounds.getCenterX() - (getDisplayWidth(recipeDisplaySupplier.get()) / 2) + 17, bounds.getCenterY() - (getDisplayHeight() / 2) + 7);
+        Point startPoint = new Point(bounds.getCenterX() - (getDisplayWidth(recipeDisplaySupplier.get()) / 2) + 17, bounds.getCenterY() - (getDisplayHeight() / 2) + 15);
 
         List<Widget> widgets = new LinkedList<>(Arrays.asList(new RecipeBaseWidget(bounds) {
             @Override
             public void render(int mouseX, int mouseY, float delta) {
                 if (this.isRendering()) {
-                    Color color = new Color(artisTableType.getColor());
-                    GlStateManager.color4f(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F);
+                    int r = (artisTableType.getColor() & 0xFF0000) >> 16;
+                    int g = (artisTableType.getColor() & 0xFF00) >> 8;
+                    int b = (artisTableType.getColor() & 0xFF);
+                    GlStateManager.color4f(r / 255F, g / 255F, b / 255F, 1.0F);
                     GuiLighting.disable();
                     this.minecraft.getTextureManager().bindTexture(new Identifier("roughlyenoughitems", "textures/gui/recipecontainer.png"));
                     int x = this.getBounds().x;
@@ -94,17 +95,17 @@ public class ArtisCategory<R extends Recipe> implements RecipeCategory<ArtisDisp
                         this.blit(x + width - 4, y + yy, 252, 128 + textureOffset, 4, thisHeight);
                     }
 
-                    this.fillGradient(x + 4, y + 4, x + width - 4, y + height - 4, this.getInnerColor(), this.getInnerColor());
+                    this.fillGradient(x + 4, y + 4, x + width - 4, y + height - 4, artisTableType.getColor(), artisTableType.getColor());
                 }
             }
         }));
 
         List<List<ItemStack>> input = recipeDisplaySupplier.get().getInput();
-        List<SlotWidget> slots = Lists.newArrayList();
+        List<ColorableSlotWidget> slots = Lists.newArrayList();
 
         for (int y = 0; y < artisTableType.getHeight(); y++)
             for (int x = 0; x < artisTableType.getWidth(); x++)
-                slots.add(new SlotWidget(startPoint.x + 1 + x * 18, startPoint.y + 1 + y * 18, Lists.newArrayList(), true, true, true));
+                slots.add(new ColorableSlotWidget(startPoint.x + 1 + x * 18, startPoint.y + 1 + y * 18, artisTableType.getColor(), Lists.newArrayList(), true, true, true));
         for (int i = 0; i < input.size(); i++) {
             if (recipeDisplaySupplier.get() != null) {
                 if (!input.get(i).isEmpty())
@@ -113,23 +114,23 @@ public class ArtisCategory<R extends Recipe> implements RecipeCategory<ArtisDisp
                 slots.get(i).setRenderers(Collections.singletonList(Renderer.fromItemStacks(input.get(i))));
         }
 
-        widgets.add(new RecipeArrowWidget(slots.get(slots.size() - 1).getX() + 24, startPoint.y + (getDisplayHeight() / 2) - 15, false));
+        widgets.add(new ColorableRecipeArrowWidget(slots.get(slots.size() - 1).getX() + 24, startPoint.y + (getDisplayHeight() / 2) - 23, artisTableType.getColor(), false));
 
         widgets.addAll(slots);
-        widgets.add(new SlotWidget(slots.get(slots.size() - 1).getX() + 55, startPoint.y + (getDisplayHeight() / 2) - 14, Renderer.fromItemStacks(recipeDisplaySupplier.get().getOutput()), true, true, true));
-        widgets.add(new SlotWidget(slots.get(slots.size() - 1).getX() + 28, startPoint.y + (getDisplayHeight() / 2) + 4, Renderer.fromItemStack(recipeDisplaySupplier.get().getCatalyst().getStackArray()[0]), true, true, true));
+        widgets.add(new ColorableSlotWidget(slots.get(slots.size() - 1).getX() + 55, startPoint.y + (getDisplayHeight() / 2) - 22, artisTableType.getColor(), Renderer.fromItemStacks(recipeDisplaySupplier.get().getOutput()), true, true, true));
+        widgets.add(new ColorableSlotWidget(slots.get(slots.size() - 1).getX() + 28, startPoint.y + (getDisplayHeight() / 2) - 4, artisTableType.getColor(), Renderer.fromItemStack(recipeDisplaySupplier.get().getCatalyst().getStackArray()[0]), true, true, true));
 
         int textWidth = MinecraftClient.getInstance().textRenderer.getStringWidth("" + recipeDisplaySupplier.get().getCatalystCost());
 
-        widgets.add(new ShadowlessLabelWidget(slots.get(slots.size() - 1).getX() + 29 + (textWidth / 2), startPoint.y + (getDisplayHeight() / 2) - 9, Formatting.DARK_GRAY + "-" + recipeDisplaySupplier.get().getCatalystCost()));
-        widgets.add(new ShadowlessLabelWidget(slots.get(slots.size() - 1).getX() + 28 + (textWidth / 2), startPoint.y + (getDisplayHeight() / 2) - 10, Formatting.RED + "-" + recipeDisplaySupplier.get().getCatalystCost()));
+        //widgets.add(new ShadowlessLabelWidget(slots.get(slots.size() - 1).getX() + 28 + (textWidth / 2), startPoint.y + (getDisplayHeight() / 2) + 15, Formatting.DARK_GRAY + "-" + recipeDisplaySupplier.get().getCatalystCost()));
+        widgets.add(new LabelWidget(slots.get(slots.size() - 1).getX() + 27 + (textWidth / 2), startPoint.y + (getDisplayHeight() / 2) + 14, Formatting.RED + "-" + recipeDisplaySupplier.get().getCatalystCost()));
 
         return widgets;
 	}
 
 	@Override
 	public int getDisplayHeight() {
-		return 13 + (artisTableType.getHeight() * 18);
+		return 29 + (artisTableType.getHeight() * 18);
 	}
 
     @Override
