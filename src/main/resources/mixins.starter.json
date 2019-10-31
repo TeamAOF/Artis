@@ -1,7 +1,0 @@
-{
-  "required": true,
-  "package": "io.github.cottonmc.starter.mixin",
-  "compatibilityLevel": "JAVA_8",
-  "mixins": [
-  ]
-}

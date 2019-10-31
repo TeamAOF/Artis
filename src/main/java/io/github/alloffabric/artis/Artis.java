@@ -2,6 +2,7 @@ package io.github.alloffabric.artis;
 
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.block.ArtisTableBlock;
+import io.github.alloffabric.artis.block.ArtisTableItem;
 import io.github.alloffabric.artis.compat.libcd.ArtisTweaker;
 import io.github.alloffabric.artis.inventory.ArtisCraftingController;
 import io.github.alloffabric.artis.inventory.ArtisCraftingScreen;
@@ -14,6 +15,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.container.BlockContext;
+import net.minecraft.container.Container;
 import net.minecraft.item.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -50,7 +52,7 @@ public class Artis implements ModInitializer {
 		ScreenProviderRegistry.INSTANCE.registerFactory(id, controller -> new ArtisCraftingScreen((ArtisCraftingController) controller, ((ArtisCraftingController) controller).getPlayer()));
 		ArtisTableBlock block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type, settings.orElse(FabricBlockSettings.copy(Blocks.CRAFTING_TABLE).build())));
 		ARTIS_TABLE_BLOCKS.add(block);
-		Registry.register(Registry.ITEM, id, new BlockItem(block, new Item.Settings().group(ARTIS_GROUP)));
+		Registry.register(Registry.ITEM, id, new ArtisTableItem(block, new Item.Settings().group(ARTIS_GROUP)));
 		Registry.register(ARTIS_TABLE_TYPES, id, type);
 		return block;
 	}

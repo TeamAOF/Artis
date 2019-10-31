@@ -35,7 +35,7 @@ public class ArtisData {
 				return;
 			}
 			JsonObject json = jankson.load(file);
-			loadEntries("config", json);
+			loadEntries("config", json.containsKey("tables")? (JsonObject)json.get("tables") : json);
 		} catch (IOException | SyntaxError e) {
 			Artis.logger.error("[Artis] Error loading config: {}", e.getMessage());
 		}
@@ -46,7 +46,7 @@ public class ArtisData {
 		for (StaticDataItem item : data) {
 			try {
 				JsonObject json = jankson.load(item.createInputStream());
-				loadEntries(item.getIdentifier().toString(), json);
+				loadEntries(item.getIdentifier().toString(), json.containsKey("tables")? (JsonObject)json.get("tables") : json);
 			} catch (IOException | SyntaxError e) {
 				Artis.logger.error("[Artis] Error loading static data item {}: {}", item.getIdentifier().toString(), e.getMessage());
 			}

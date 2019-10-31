@@ -4,7 +4,7 @@
   "version": "$version",
 
   "name": "Artis",
-  "icon": "assets/starter/icon.png",
+  "icon": "assets/artis/icon.png",
   "description": "Customizable crafting tables for modpacks",
   "license": "MIT",
   "contact": {
