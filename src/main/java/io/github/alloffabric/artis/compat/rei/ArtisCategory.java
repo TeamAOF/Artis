@@ -9,7 +9,6 @@ import me.shedaniel.rei.api.RecipeCategory;
 import me.shedaniel.rei.api.Renderer;
 import me.shedaniel.rei.gui.renderers.RecipeRenderer;
 import me.shedaniel.rei.gui.widget.*;
-import me.shedaniel.rei.plugin.crafting.DefaultCraftingDisplay;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GuiLighting;
 import net.minecraft.client.resource.language.I18n;
@@ -53,7 +52,7 @@ public class ArtisCategory<R extends Recipe> implements RecipeCategory<ArtisDisp
 		return Renderer.fromRecipe(() -> Collections.singletonList(recipe.getInput().get(0)), recipe::getOutput);
 	}
 
-    public static int getSlotWithSize(DefaultCraftingDisplay recipeDisplay, int num, int craftingGridWidth) {
+    public static int getSlotWithSize(ArtisDisplay recipeDisplay, int num, int craftingGridWidth) {
         int x = num % recipeDisplay.getWidth();
         int y = (num - x) / recipeDisplay.getWidth();
         return craftingGridWidth * y + x;

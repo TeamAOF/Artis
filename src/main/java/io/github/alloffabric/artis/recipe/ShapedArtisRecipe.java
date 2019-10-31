@@ -32,7 +32,7 @@ public class ShapedArtisRecipe extends ShapedRecipe implements ArtisCraftingReci
 		return true;
 	}
 
-	@Override
+    @Override
 	public boolean matches(CraftingInventory inventory, World world) {
 		if (!(inventory instanceof ArtisCraftingInventory)) return false;
 		ArtisCraftingInventory artis = (ArtisCraftingInventory)inventory;

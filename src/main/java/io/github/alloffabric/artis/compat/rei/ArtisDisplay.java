@@ -1,19 +1,10 @@
 package io.github.alloffabric.artis.compat.rei;
 
-import io.github.alloffabric.artis.Artis;
 import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisTableType;
-import io.github.alloffabric.artis.recipe.ShapedArtisRecipe;
-import io.github.alloffabric.artis.recipe.ShapelessArtisRecipe;
-import me.shedaniel.rei.api.RecipeDisplay;
 import me.shedaniel.rei.plugin.crafting.DefaultCraftingDisplay;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.CraftingRecipe;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.ShapedRecipe;
-import net.minecraft.util.DefaultedList;
+import net.minecraft.recipe.*;
 import net.minecraft.util.Identifier;
 
 import java.util.Arrays;
@@ -23,20 +14,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ArtisDisplay implements DefaultCraftingDisplay {
-    private Recipe display;
-    private List<List<ItemStack>> input;
-    private List<ItemStack> output;
+    private ArtisCraftingRecipe display;
     private Ingredient catalyst;
     private int catalystCost;
+    private List<List<ItemStack>> input;
+    private List<ItemStack> output;
 
-    public ArtisDisplay(Recipe recipe) {
-        if (recipe instanceof CraftingRecipe && recipe instanceof ArtisCraftingRecipe) {
-            this.display = recipe;
-            this.input = ((CraftingRecipe)recipe).getPreviewInputs().stream().map(i -> Arrays.asList(i.getStackArray())).collect(Collectors.toList());
-            this.output = Collections.singletonList(recipe.getOutput());
-            this.catalyst = ((ArtisCraftingRecipe)recipe).getCatalyst();
-            this.catalystCost = ((ArtisCraftingRecipe)recipe).getCatalystCost();
-        }
+    public ArtisDisplay(ArtisCraftingRecipe recipe) {
+        this.display = recipe;
+        this.input = recipe.getPreviewInputs().stream().map((i) -> Arrays.asList(i.getStackArray())).collect(Collectors.toList());
+        this.output = Collections.singletonList(recipe.getOutput());
+        this.catalyst = recipe.getCatalyst();
+        this.catalystCost = recipe.getCatalystCost();
     }
 
     @Override
@@ -46,17 +35,37 @@ public class ArtisDisplay implements DefaultCraftingDisplay {
 
     @Override
     public Optional<Identifier> getRecipeLocation() {
-        return Optional.ofNullable(display).map(Recipe::getId);
+        return Optional.ofNullable(display).map(CraftingRecipe::getId);
+    }
+
+    @Override
+    public Optional<Recipe<?>> getOptionalRecipe() {
+        return Optional.ofNullable(this.display);
     }
 
     @Override
     public List<List<ItemStack>> getInput() {
-        return input;
+        return this.input;
     }
 
     @Override
     public List<ItemStack> getOutput() {
-        return output;
+        return this.output;
+    }
+
+    @Override
+    public List<List<ItemStack>> getRequiredItems() {
+        return this.input;
+    }
+
+    @Override
+    public int getWidth() {
+        return display.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return display.getHeight();
     }
 
     public Ingredient getCatalyst() {
@@ -65,25 +74,5 @@ public class ArtisDisplay implements DefaultCraftingDisplay {
 
     public int getCatalystCost() {
         return catalystCost;
-    }
-
-    @Override
-    public List<List<ItemStack>> getRequiredItems() {
-        return input;
-    }
-
-    @Override
-    public int getHeight() {
-        return ((ArtisTableType) display.getType()).getHeight();
-    }
-
-    @Override
-    public Optional<Recipe<?>> getOptionalRecipe() {
-        return Optional.ofNullable(display);
-    }
-
-    @Override
-    public int getWidth() {
-        return ((ArtisTableType) display.getType()).getWidth();
     }
 }

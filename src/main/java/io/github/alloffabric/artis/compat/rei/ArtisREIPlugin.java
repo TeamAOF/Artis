@@ -1,10 +1,10 @@
 package io.github.alloffabric.artis.compat.rei;
 
 import io.github.alloffabric.artis.Artis;
+import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.block.ArtisTableBlock;
 import io.github.alloffabric.artis.recipe.ShapedArtisRecipe;
-import me.shedaniel.rei.api.RecipeDisplay;
 import me.shedaniel.rei.api.RecipeHelper;
 import me.shedaniel.rei.api.plugins.REIPluginV0;
 import net.fabricmc.loader.api.SemanticVersion;
@@ -14,9 +14,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.util.Identifier;
 
+import javax.xml.ws.Provider;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ArtisREIPlugin implements REIPluginV0 {
@@ -49,15 +49,13 @@ public class ArtisREIPlugin implements REIPluginV0 {
 
 	@Override
 	public void registerRecipeDisplays(RecipeHelper recipeHelper) {
-        Function<Recipe, RecipeDisplay> recipeDisplay = r -> new ArtisDisplay((Recipe) r);
-
         for (ArtisTableType type : Artis.ARTIS_TABLE_TYPES) {
             recipeHelper.registerRecipes(type.getId(), (Predicate<Recipe>) recipe -> {
                 if (recipe.getType() == type) {
                     return true;
                 }
                 return false;
-            }, recipeDisplay);
+            }, ArtisDisplay::new);
         }
 	}
 
