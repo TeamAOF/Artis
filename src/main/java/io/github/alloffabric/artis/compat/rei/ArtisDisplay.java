@@ -1,6 +1,7 @@
 package io.github.alloffabric.artis.compat.rei;
 
 import io.github.alloffabric.artis.Artis;
+import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.recipe.ShapedArtisRecipe;
 import io.github.alloffabric.artis.recipe.ShapelessArtisRecipe;
@@ -8,6 +9,7 @@ import me.shedaniel.rei.api.RecipeDisplay;
 import me.shedaniel.rei.plugin.crafting.DefaultCraftingDisplay;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.ShapedRecipe;
@@ -28,18 +30,12 @@ public class ArtisDisplay implements DefaultCraftingDisplay {
     private int catalystCost;
 
     public ArtisDisplay(Recipe recipe) {
-        if (recipe instanceof ShapedArtisRecipe) {
+        if (recipe instanceof CraftingRecipe && recipe instanceof ArtisCraftingRecipe) {
             this.display = recipe;
-            this.input = ((ShapedArtisRecipe)recipe).getPreviewInputs().stream().map(i -> Arrays.asList(i.getStackArray())).collect(Collectors.toList());
+            this.input = ((CraftingRecipe)recipe).getPreviewInputs().stream().map(i -> Arrays.asList(i.getStackArray())).collect(Collectors.toList());
             this.output = Collections.singletonList(recipe.getOutput());
-            this.catalyst = ((ShapedArtisRecipe)recipe).getCatalyst();
-            this.catalystCost = ((ShapedArtisRecipe)recipe).getCatalystCost();
-        } else if (recipe instanceof ShapelessArtisRecipe) {
-            this.display = recipe;
-            this.input = ((ShapelessArtisRecipe)recipe).getPreviewInputs().stream().map(i -> Arrays.asList(i.getStackArray())).collect(Collectors.toList());
-            this.output = Collections.singletonList(recipe.getOutput());
-            this.catalyst = ((ShapelessArtisRecipe)recipe).getCatalyst();
-            this.catalystCost = ((ShapelessArtisRecipe)recipe).getCatalystCost();
+            this.catalyst = ((ArtisCraftingRecipe)recipe).getCatalyst();
+            this.catalystCost = ((ArtisCraftingRecipe)recipe).getCatalystCost();
         }
     }
 
