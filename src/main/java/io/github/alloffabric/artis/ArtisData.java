@@ -57,7 +57,7 @@ public class ArtisData {
 		List<String> keys = new ArrayList<>(json.keySet());
 		Collections.sort(keys);
 		for (String key : keys) {
-			if (Artis.ARTIS_TABLE_TYPES.containsId(new Identifier(key))) {
+			if (Artis.ARTIS_TABLE_TYPES.hasId(new Identifier(key))) {
 				Artis.logger.error("[Artis] Table type named {} already exists, skipping it in {}", key, from);
 				continue;
 			}
@@ -89,11 +89,11 @@ public class ArtisData {
 			Artis.logger.error("[Artis] Table type named {} has too many rows, clamping it to 9", key);
 			height = 9;
 		}
-		boolean makeModel = json.containsKey("model")? json.get(Boolean.class, ("model")) : false;
+		boolean genAssets = json.containsKey("generate_assets")? json.get(Boolean.class, ("generate_assets")) : false;
 		if (json.containsKey("color")) {
-			return new ArtisTableType(id, width, height, makeModel, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
+			return new ArtisTableType(id, width, height, genAssets, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
 		}
-		return new ArtisTableType(id, width, height, makeModel);
+		return new ArtisTableType(id, width, height, genAssets);
 	}
 
 }

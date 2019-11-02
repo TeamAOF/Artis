@@ -1,6 +1,7 @@
 package io.github.alloffabric.artis.inventory;
 
 import io.github.alloffabric.artis.Artis;
+import io.github.alloffabric.artis.ArtisClient;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.cottonmc.cotton.gui.CottonScreenController;
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
@@ -58,7 +59,7 @@ public class ArtisCraftingController extends CottonScreenController {
 		this.setRootPanel(panel);
 		this.craftInv = new ArtisCraftingInventory(this, type.getWidth(), type.getHeight());
 		this.resultInv = new CraftingResultInventory();
-		label = new WLabel(new TranslatableText("container." + type.getId().getNamespace() + "." + type.getId().getPath()), 0x404040);
+		label = new WLabel(ArtisClient.getName(type.getId()), 0x404040);
 		grid = new WItemSlot(craftInv, 0, type.getWidth(), type.getHeight(), false, true);
 		catalyst = new WItemSlot(craftInv, craftInv.getInvSize() - 1, 1, 1, false, true);
 		result = new WArtisResultSlot(player, craftInv, resultInv, 0, 1, 1, true, true, syncId);

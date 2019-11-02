@@ -12,7 +12,7 @@ public class ArtisTableType implements RecipeType {
 	private int width;
 	private int height;
 	private int color = 0;
-	private boolean makeModel;
+	private boolean generateAssets;
 	private boolean hasColor = false;
 	private RecipeSerializer shaped;
 	private RecipeSerializer shapeless;
@@ -28,7 +28,7 @@ public class ArtisTableType implements RecipeType {
 		this.id = id;
 		this.width = width;
 		this.height = height;
-		this.makeModel = makeModel;
+		this.generateAssets = makeModel;
 		Identifier shapedId = new Identifier(id.getNamespace(), id.getPath() + "_shaped");
 		Identifier shapelessId = new Identifier(id.getNamespace(), id.getPath() + "_shapeless");
 		this.shaped = Registry.register(Registry.RECIPE_SERIALIZER, shapedId, new ShapedArtisSerializer(this));
@@ -55,8 +55,8 @@ public class ArtisTableType implements RecipeType {
 		return height;
 	}
 
-	public boolean shouldMakeModel() {
-		return makeModel;
+	public boolean shouldGenerateAssets() {
+		return generateAssets;
 	}
 
 	public boolean hasColor() {
