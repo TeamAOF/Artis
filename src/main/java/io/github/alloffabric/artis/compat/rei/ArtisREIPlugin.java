@@ -5,6 +5,7 @@ import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.block.ArtisTableBlock;
 import io.github.alloffabric.artis.recipe.ShapedArtisRecipe;
+import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeHelper;
 import me.shedaniel.rei.api.plugins.REIPluginV0;
 import net.fabricmc.loader.api.SemanticVersion;
@@ -64,7 +65,7 @@ public class ArtisREIPlugin implements REIPluginV0 {
         recipeHelper.registerRecipeVisibilityHandler(new ArtisDisplayVisibilityHandler());
 
         for (ArtisTableBlock block : Artis.ARTIS_TABLE_BLOCKS) {
-            recipeHelper.registerWorkingStations(block.getType().getId(), new ItemStack(block.asItem()));
+            recipeHelper.registerWorkingStations(block.getType().getId(), EntryStack.create(block.asItem()));
         }
 	}
 }

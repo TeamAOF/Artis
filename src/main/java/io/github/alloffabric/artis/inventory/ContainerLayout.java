@@ -42,7 +42,7 @@ public class ContainerLayout {
 		arrowX += gridX;
 
 		this.playerX = playerWidth > craftingWidth? 0 : ((craftingWidth - playerWidth) / 2) + 2;
-		this.playerY = gridY + Math.max(48, gridHeight + 8);
+		this.playerY = gridY + Math.max(48, gridHeight + 10);
 	}
 
 	public int getGridX() {

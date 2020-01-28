@@ -2,12 +2,16 @@ package io.github.alloffabric.artis.inventory;
 
 import io.github.alloffabric.artis.Artis;
 import io.github.alloffabric.artis.ArtisClient;
+import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisTableType;
-import io.github.cottonmc.cotton.gui.CottonScreenController;
+import io.github.alloffabric.artis.recipe.ShapedArtisRecipe;
+import io.github.cottonmc.cotton.gui.CottonCraftingController;
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.*;
-import net.minecraft.client.network.packet.GuiSlotUpdateS2CPacket;
+import io.github.cottonmc.cotton.gui.widget.data.Alignment;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.packet.ContainerSlotUpdateS2CPacket;
 import net.minecraft.container.BlockContext;
 import net.minecraft.container.Slot;
 import net.minecraft.container.SlotActionType;
@@ -20,13 +24,14 @@ import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 import java.util.Optional;
 
-public class ArtisCraftingController extends CottonScreenController {
+public class ArtisCraftingController extends CottonCraftingController {
 	private ArtisTableType type;
 	private PlayerEntity player;
 	private ArtisCraftingInventory craftInv;
@@ -35,6 +40,7 @@ public class ArtisCraftingController extends CottonScreenController {
 
 	private WPlainPanel panel;
 	private WLabel label;
+	private WLabel catalystCost;
 	private WItemSlot grid;
 	private WItemSlot catalyst;
 	private WItemSlot result;
@@ -62,6 +68,7 @@ public class ArtisCraftingController extends CottonScreenController {
 		label = new WLabel(ArtisClient.getName(type.getId()), 0x404040);
 		grid = new WItemSlot(craftInv, 0, type.getWidth(), type.getHeight(), false, true);
 		catalyst = new WItemSlot(craftInv, craftInv.getInvSize() - 1, 1, 1, false, true);
+		catalystCost = new WLabel("", 0xAA0000).setAlignment(Alignment.CENTER);
 		result = new WArtisResultSlot(player, craftInv, resultInv, 0, 1, 1, true, true, syncId);
 		playerInv = new WPlayerInvPanel(player.inventory);
 		WSprite arrow = new WSprite(new Identifier(Artis.MODID, "textures/gui/arrow.png"));
@@ -71,6 +78,7 @@ public class ArtisCraftingController extends CottonScreenController {
 		panel.add(result, layout.getResultX(), layout.getResultY());
 		panel.add(grid, layout.getGridX(), layout.getGridY());
 		panel.add(catalyst, layout.getCatalystX(), layout.getCatalystY());
+		panel.add(catalystCost, layout.getCatalystX(), layout.getCatalystY() + 18);
 		panel.add(playerInv, layout.getPlayerX(), layout.getPlayerY());
 		panel.add(arrow, layout.getArrowX(), layout.getArrowY(), 22, 15);
 
@@ -150,19 +158,31 @@ public class ArtisCraftingController extends CottonScreenController {
 
 	public void updateResult(int syncId, World world, PlayerEntity player, CraftingInventory craftInv, CraftingResultInventory resultInv) {
 		if (!world.isClient) {
-			ServerPlayerEntity serverPlayer = (ServerPlayerEntity)player;
-			ItemStack stack = ItemStack.EMPTY;
-			Optional<CraftingRecipe> opt = world.getServer().getRecipeManager().getFirstMatch(this.type, craftInv, world);
-			if (opt.isPresent()) {
-				CraftingRecipe recipe = opt.get();
-				if (resultInv.shouldCraftRecipe(world, serverPlayer, recipe)) {
-					stack = recipe.craft(craftInv);
-				}
-			}
+            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+            ItemStack stack = ItemStack.EMPTY;
+            Optional<CraftingRecipe> opt = world.getServer().getRecipeManager().getFirstMatch(this.type, craftInv, world);
+            if (opt.isPresent()) {
+                CraftingRecipe recipe = opt.get();
+                if (resultInv.shouldCraftRecipe(world, serverPlayer, recipe)) {
+                    stack = recipe.craft(craftInv);
+                }
+            }
 
-			resultInv.setInvStack(0, stack);
-			serverPlayer.networkHandler.sendPacket(new GuiSlotUpdateS2CPacket(syncId, 0, stack));
-		}
+            resultInv.setInvStack(0, stack);
+            serverPlayer.networkHandler.sendPacket(new ContainerSlotUpdateS2CPacket(syncId, 0, stack));
+        } else if (world.isClient) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            Optional<CraftingRecipe> opt = client.world.getRecipeManager().getFirstMatch(this.type, craftInv, world);
+            if (opt.isPresent()) {
+                CraftingRecipe recipe = opt.get();
+                if (recipe instanceof ArtisCraftingRecipe) {
+                    ArtisCraftingRecipe artisCraftingRecipe = (ArtisCraftingRecipe) recipe;
+                    catalystCost.setText(new LiteralText(Formatting.RED + "-" + artisCraftingRecipe.getCatalystCost()));
+                }
+            } else {
+                catalystCost.setText(new LiteralText(""));
+            }
+        }
 	}
 
 	@Override
@@ -179,7 +199,7 @@ public class ArtisCraftingController extends CottonScreenController {
 	@Override
 	public ItemStack transferSlot(PlayerEntity player, int slotIndex) {
 		ItemStack stack = ItemStack.EMPTY;
-		Slot slot = this.slotList.get(slotIndex);
+		Slot slot = this.slots.get(slotIndex);
 		if (slot != null && slot.hasStack()) {
 			ItemStack toTake = slot.getStack();
 			stack = toTake.copy();
