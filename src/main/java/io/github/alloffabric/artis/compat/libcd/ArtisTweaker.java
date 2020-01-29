@@ -2,10 +2,9 @@ package io.github.alloffabric.artis.compat.libcd;
 
 import io.github.alloffabric.artis.Artis;
 import io.github.alloffabric.artis.api.ArtisTableType;
-import io.github.cottonmc.libcd.tweaker.Tweaker;
+import io.github.cottonmc.libcd.api.tweaker.TweakerManager;
 import net.minecraft.util.Identifier;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public class ArtisTweaker {
 			INSTANCE.tweakers.put(id, new TableTweaker(type));
 		}
 
-		Tweaker.addAssistant("ArtisTweaker", INSTANCE);
+        TweakerManager.INSTANCE.addAssistant("artis.recipe.ArtisTweaker", INSTANCE);
 	}
 
 	public TableTweaker get(String id) {

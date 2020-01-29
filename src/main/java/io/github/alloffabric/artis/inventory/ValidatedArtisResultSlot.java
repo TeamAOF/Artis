@@ -4,7 +4,7 @@ import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.SpecialCatalyst;
 import io.github.cottonmc.cotton.gui.ValidatedSlot;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.client.network.packet.GuiSlotUpdateS2CPacket;
+import net.minecraft.client.network.packet.ContainerSlotUpdateS2CPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -107,7 +107,7 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
 						catalyst.decrement(recipe.getCatalystCost());
 					}
 					this.craftingInv.setInvStack(catalystSlot, catalyst);
-					if (!player.world.isClient) ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, new GuiSlotUpdateS2CPacket(syncId, catalystSlot + 1, catalyst));
+					if (!player.world.isClient) ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, new ContainerSlotUpdateS2CPacket(syncId, catalystSlot + 1, catalyst));
 				}
 			}
 		}

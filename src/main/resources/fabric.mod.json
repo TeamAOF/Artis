@@ -20,6 +20,9 @@
     ],
     "rei_plugins_v0": [
       "io.github.alloffabric.artis.compat.rei.ArtisREIPlugin"
+    ],
+	"rei_containers": [
+      "io.github.alloffabric.artis.compat.rei.ArtisServerContainerPlugin"
     ]
   },
   "depends": {

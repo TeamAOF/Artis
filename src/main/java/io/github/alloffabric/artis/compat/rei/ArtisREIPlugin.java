@@ -1,22 +1,18 @@
 package io.github.alloffabric.artis.compat.rei;
 
 import io.github.alloffabric.artis.Artis;
-import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.block.ArtisTableBlock;
-import io.github.alloffabric.artis.recipe.ShapedArtisRecipe;
+import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeHelper;
 import me.shedaniel.rei.api.plugins.REIPluginV0;
 import net.fabricmc.loader.api.SemanticVersion;
 import net.fabricmc.loader.util.version.VersionParsingException;
 import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.util.Identifier;
 
-import javax.xml.ws.Provider;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class ArtisREIPlugin implements REIPluginV0 {
@@ -29,6 +25,7 @@ public class ArtisREIPlugin implements REIPluginV0 {
             iconMap.put(block.getType(), block);
         }
     }
+
 
     @Override
     public Identifier getPluginIdentifier() {
@@ -64,7 +61,7 @@ public class ArtisREIPlugin implements REIPluginV0 {
         recipeHelper.registerRecipeVisibilityHandler(new ArtisDisplayVisibilityHandler());
 
         for (ArtisTableBlock block : Artis.ARTIS_TABLE_BLOCKS) {
-            recipeHelper.registerWorkingStations(block.getType().getId(), new ItemStack(block.asItem()));
+            recipeHelper.registerWorkingStations(block.getType().getId(), EntryStack.create(block.asItem()));
         }
 	}
 }

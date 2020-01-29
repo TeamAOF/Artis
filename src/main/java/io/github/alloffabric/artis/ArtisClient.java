@@ -8,8 +8,10 @@ import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.inventory.ArtisCraftingController;
 import io.github.alloffabric.artis.inventory.ArtisCraftingScreen;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.render.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.screen.ScreenProviderRegistry;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -37,6 +39,7 @@ public class ArtisClient implements ClientModInitializer {
 				ColorProviderRegistry.BLOCK.register((state, world, pos, index) -> type.getColor(), Registry.BLOCK.get(type.getId()));
 				ColorProviderRegistry.ITEM.register((stack, index) -> type.getColor(), Registry.ITEM.get(type.getId()));
 			}
+            BlockRenderLayerMap.INSTANCE.putBlock(Registry.BLOCK.get(type.getId()), RenderLayer.getCutout());
 		}
 		Artifice.registerAssets(new Identifier(Artis.MODID, "artis_assets"), assets -> {
 			for (Identifier id : BLOCKSTATES.keySet()) {

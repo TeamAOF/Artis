@@ -85,9 +85,9 @@ public class ShapedArtisRecipe extends ShapedRecipe implements ArtisCraftingReci
 
 	@Override
 	public ItemStack craft(CraftingInventory inv) {
-		if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
-			return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
-		}
+//		if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
+//			return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
+//		}
 		return this.getOutput().copy();
 	}
 

@@ -3,7 +3,7 @@ package io.github.alloffabric.artis;
 import blue.endless.jankson.Jankson;
 import blue.endless.jankson.JsonElement;
 import blue.endless.jankson.JsonObject;
-import blue.endless.jankson.impl.SyntaxError;
+import blue.endless.jankson.api.SyntaxError;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.cottonmc.jankson.JanksonFactory;
 import io.github.cottonmc.staticdata.StaticData;

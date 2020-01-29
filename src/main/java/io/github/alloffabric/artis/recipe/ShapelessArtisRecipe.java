@@ -48,14 +48,14 @@ public class ShapelessArtisRecipe extends ShapelessRecipe implements ArtisCrafti
 		} else {
 			if (toTest.getCount() < catalystCost) return false;
 		}
-		return super.method_17730(inventory, world); //ShapelessRecipe.matches (mapping gets lost because of generics)
+		return super.matches(inventory, world);
 	}
 
 	@Override
 	public ItemStack craft(CraftingInventory inv) {
-		if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
-			return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
-		}
+//		if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
+//			return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
+//		}
 		return this.getOutput().copy();
 	}
 
