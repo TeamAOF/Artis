@@ -85,7 +85,11 @@ public class ArtisCraftingController extends CottonCraftingController {
 		panel.validate(this);
 	}
 
-	public PlayerEntity getPlayer() {
+    public int getCatalystSlot() {
+        return catalystSlot;
+    }
+
+    public PlayerEntity getPlayer() {
 		return player;
 	}
 
@@ -243,14 +247,14 @@ public class ArtisCraftingController extends CottonCraftingController {
 		return stack;
 	}
 
-	@Override
-	public ItemStack onSlotClick(int slotNumber, int button, SlotActionType action, PlayerEntity player) {
-		if (action == SlotActionType.QUICK_MOVE) {
-			return transferSlot(player, slotNumber);
-		} else {
-			return super.onSlotClick(slotNumber, button, action, player);
-		}
-	}
+//	@Override
+//	public ItemStack onSlotClick(int slotNumber, int button, SlotActionType action, PlayerEntity player) {
+//		if (action == SlotActionType.QUICK_MOVE) {
+//			return transferSlot(player, slotNumber);
+//		} else {
+//			return super.onSlotClick(slotNumber, button, action, player);
+//		}
+//	}
 
 	@Override
 	public void populateRecipeFinder(RecipeFinder finder) {

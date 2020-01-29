@@ -2,17 +2,24 @@ package io.github.alloffabric.artis.compat.rei;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.alloffabric.artis.api.ArtisTableType;
+import it.unimi.dsi.fastutil.ints.IntList;
 import me.shedaniel.math.api.Point;
 import me.shedaniel.math.api.Rectangle;
 import me.shedaniel.rei.api.EntryStack;
-import me.shedaniel.rei.api.RecipeCategory;
+import me.shedaniel.rei.api.TransferRecipeCategory;
 import me.shedaniel.rei.gui.widget.*;
-import net.minecraft.client.MinecraftClient;
+import me.shedaniel.rei.impl.ScreenHelper;
+import me.shedaniel.rei.server.ContainerInfo;
+import me.shedaniel.rei.server.ContainerInfoHandler;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.container.Container;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 
 import java.util.Arrays;
@@ -20,7 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class ArtisCategory<R extends Recipe> implements RecipeCategory<ArtisDisplay> {
+public class ArtisCategory<R extends Recipe> implements TransferRecipeCategory<ArtisDisplay> {
 	private final ArtisTableType artisTableType;
 
 	ArtisCategory(ArtisTableType artisTableType) {
@@ -114,6 +121,23 @@ public class ArtisCategory<R extends Recipe> implements RecipeCategory<ArtisDisp
 
         return widgets;
 	}
+
+    @Override
+    public void renderRedSlots(List<Widget> widgets, Rectangle bounds, ArtisDisplay display, IntList redSlots) {
+	    ContainerInfo<Container> info = (ContainerInfo<Container>) ContainerInfoHandler.getContainerInfo(getIdentifier(), ScreenHelper.getLastContainerScreen().getContainer().getClass());
+        if (info == null)
+            return;
+        RenderSystem.translatef(0, 0, 400);
+        Point startPoint = new Point(bounds.getCenterX() - (getDisplayWidth(display) / 2) + 17, bounds.getCenterY() - (getDisplayHeight() / 2) + 15);
+        int width = info.getCraftingWidth(ScreenHelper.getLastContainerScreen().getContainer());
+        for (Integer slot : redSlots) {
+            int i = slot;
+            int x = i % width;
+            int y = MathHelper.floor(i / (float) width);
+            DrawableHelper.fill(startPoint.x + 1 + x * 18, startPoint.y + 1 + y * 18, startPoint.x + 1 + x * 18 + 16, startPoint.y + 1 + y * 18 + 16, 0x60ff0000);
+        }
+        RenderSystem.translatef(0, 0, -400);
+    }
 
 	@Override
 	public int getDisplayHeight() {
