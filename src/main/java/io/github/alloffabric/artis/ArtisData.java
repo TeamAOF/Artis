@@ -90,10 +90,11 @@ public class ArtisData {
 			height = 9;
 		}
 		boolean genAssets = json.containsKey("generate_assets")? json.get(Boolean.class, ("generate_assets")) : false;
+        boolean opaque = json.containsKey("opaque")? json.get(Boolean.class, ("opaque")) : true;
 		if (json.containsKey("color")) {
-			return new ArtisTableType(id, width, height, genAssets, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
+			return new ArtisTableType(id, width, height, genAssets, opaque, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
 		}
-		return new ArtisTableType(id, width, height, genAssets);
+		return new ArtisTableType(id, width, height, genAssets, opaque);
 	}
 
 }
