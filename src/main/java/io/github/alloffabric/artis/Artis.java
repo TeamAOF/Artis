@@ -46,7 +46,11 @@ public class Artis implements ModInitializer {
 	public static Block registerTable(ArtisTableType type, Optional<Block.Settings> settings) {
 		Identifier id = type.getId();
 		ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisCraftingController(type, syncId, player, BlockContext.create(player.world, buf.readBlockPos())));
-		ArtisTableBlock block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type, settings.orElse(FabricBlockSettings.copy(Blocks.CRAFTING_TABLE).build())));
+		Block.Settings blockSettings = settings.orElse(FabricBlockSettings.copy(Blocks.CRAFTING_TABLE).build());
+		if (!type.isOpaque()) {
+            blockSettings = blockSettings.nonOpaque();
+        }
+		ArtisTableBlock block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type, blockSettings));
 		ARTIS_TABLE_BLOCKS.add(block);
 		Registry.register(Registry.ITEM, id, new ArtisTableItem(block, new Item.Settings().group(ARTIS_GROUP)));
 		Registry.register(ARTIS_TABLE_TYPES, id, type);

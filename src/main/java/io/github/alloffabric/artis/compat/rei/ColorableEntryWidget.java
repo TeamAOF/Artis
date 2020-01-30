@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package io.github.alloffabric.artis.compat.rei;
 
 import com.mojang.blaze3d.platform.GlStateManager;
