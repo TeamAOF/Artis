@@ -4,6 +4,8 @@ import blue.endless.jankson.Jankson;
 import blue.endless.jankson.JsonElement;
 import blue.endless.jankson.JsonObject;
 import blue.endless.jankson.api.SyntaxError;
+import io.github.alloffabric.artis.api.ArtisExistingBlockType;
+import io.github.alloffabric.artis.api.ArtisExistingItemType;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.cottonmc.jankson.JanksonFactory;
 import io.github.cottonmc.staticdata.StaticData;
@@ -78,23 +80,45 @@ public class ArtisData {
 
 	//TODO: more options for tables
 	static ArtisTableType getType(String key, JsonObject json) {
-		Identifier id = new Identifier(key);
-		int width = json.get(Integer.class, "width");
-		int height = json.get(Integer.class, "height");
-		if (width > 9) {
-			Artis.logger.error("[Artis] Table type named {} has too many columns, clamping it to 9", key);
-			width = 9;
-		}
-		if (height > 9) {
-			Artis.logger.error("[Artis] Table type named {} has too many rows, clamping it to 9", key);
-			height = 9;
-		}
-		boolean genAssets = json.containsKey("generate_assets")? json.get(Boolean.class, ("generate_assets")) : false;
-        boolean opaque = json.containsKey("opaque")? json.get(Boolean.class, ("opaque")) : true;
-		if (json.containsKey("color")) {
-			return new ArtisTableType(id, width, height, genAssets, opaque, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
-		}
-		return new ArtisTableType(id, width, height, genAssets, opaque);
+        Identifier id = new Identifier(key);
+        String tableType = json.containsKey("type") ? json.get(String.class, "type"):"normal";
+        int width = json.get(Integer.class, "width");
+        int height = json.get(Integer.class, "height");
+        if (width > 9) {
+            Artis.logger.error("[Artis] Table type named {} has too many columns, clamping it to 9", key);
+            width = 9;
+        }
+        if (height > 9) {
+            Artis.logger.error("[Artis] Table type named {} has too many rows, clamping it to 9", key);
+            height = 9;
+        }
+        boolean catalystSlot = json.containsKey("catalyst_slot") ? json.get(Boolean.class, "catalyst_slot") : false;
+        boolean includeNormalRecipes = json.containsKey("normal_recipes") ? json.get(Boolean.class, "normal_recipes") : false;
+        boolean genAssets = json.containsKey("generate_assets") ? json.get(Boolean.class, ("generate_assets")):false;
+        boolean opaque = json.containsKey("opaque") ? json.get(Boolean.class, ("opaque")):true;
+        if (tableType.equals("existing_block")) {
+            if (Registry.BLOCK.containsId(id) || json.containsKey("bypass_check") && json.get(Boolean.class, "bypass_check")) {
+                if (json.containsKey("color")) {
+                    return new ArtisExistingBlockType(id, width, height, catalystSlot, includeNormalRecipes, genAssets, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
+                }
+                return new ArtisExistingBlockType(id, width, height, catalystSlot, includeNormalRecipes, genAssets);
+            } else {
+                Artis.logger.error("[Artis] Table type named {} could not find the block specified. Are you sure it exists? If it definitely exists, try setting bypass_check to true.", key);
+            }
+        } else if (tableType.equals("existing_item")) {
+            if (Registry.ITEM.containsId(id) || json.containsKey("bypass_check") && json.get(Boolean.class, "bypass_check")) {
+                if (json.containsKey("color")) {
+                    return new ArtisExistingItemType(id, width, height, catalystSlot, includeNormalRecipes, genAssets, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
+                }
+                return new ArtisExistingItemType(id, width, height, catalystSlot, includeNormalRecipes, genAssets);
+            } else {
+                Artis.logger.error("[Artis] Table type named {} could not find the item specified. Are you sure it exists? If it definitely exists, try setting bypass_check to true.", key);
+            }
+        }
+        if (json.containsKey("color")) {
+            return new ArtisTableType(id, width, height, catalystSlot, includeNormalRecipes, genAssets, opaque, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
+        }
+        return new ArtisTableType(id, width, height, catalystSlot, includeNormalRecipes, genAssets, opaque);
 	}
 
 }

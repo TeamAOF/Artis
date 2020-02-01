@@ -40,22 +40,24 @@ public class ShapelessArtisRecipe extends ShapelessRecipe implements ArtisCrafti
 		if (!(inventory instanceof ArtisCraftingInventory)) return false;
 		ArtisCraftingInventory artis = (ArtisCraftingInventory)inventory;
 		ItemStack toTest = artis.getCatalyst();
-		if (!catalyst.test(toTest)) return false;
-		if (toTest.isDamageable()) {
-			if (toTest.getMaxDamage() - toTest.getDamage() < catalystCost) return false;
-		} else if (toTest.getItem() instanceof SpecialCatalyst) {
-			if (!((SpecialCatalyst) toTest.getItem()).matches(toTest, catalystCost)) return false;
-		} else {
-			if (toTest.getCount() < catalystCost) return false;
-		}
+		if (artis.shouldCompareCatalyst()) {
+            if (!catalyst.test(toTest)) return false;
+            if (toTest.isDamageable()) {
+                if (toTest.getMaxDamage() - toTest.getDamage() < catalystCost) return false;
+            } else if (toTest.getItem() instanceof SpecialCatalyst) {
+                if (!((SpecialCatalyst) toTest.getItem()).matches(toTest, catalystCost)) return false;
+            } else {
+                if (toTest.getCount() < catalystCost) return false;
+            }
+        }
 		return super.matches(inventory, world);
 	}
 
 	@Override
 	public ItemStack craft(CraftingInventory inv) {
-//		if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
-//			return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
-//		}
+		if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
+			return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
+		}
 		return this.getOutput().copy();
 	}
 

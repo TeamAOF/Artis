@@ -4,6 +4,8 @@ import com.swordglowsblue.artifice.api.Artifice;
 import com.swordglowsblue.artifice.api.builder.assets.BlockStateBuilder;
 import com.swordglowsblue.artifice.api.builder.assets.ModelBuilder;
 import com.swordglowsblue.artifice.api.util.Processor;
+import io.github.alloffabric.artis.api.ArtisExistingBlockType;
+import io.github.alloffabric.artis.api.ArtisExistingItemType;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.inventory.ArtisCraftingController;
 import io.github.alloffabric.artis.inventory.ArtisCraftingScreen;
@@ -30,16 +32,18 @@ public class ArtisClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		for (ArtisTableType type : Artis.ARTIS_TABLE_TYPES) {
-			ScreenProviderRegistry.INSTANCE.registerFactory(type.getId(), controller -> new ArtisCraftingScreen((ArtisCraftingController) controller, ((ArtisCraftingController) controller).getPlayer()));
-			if (type.shouldGenerateAssets()) {
-				BLOCKSTATES.put(type.getId(), builder -> builder.variant("", variant -> variant.model(new Identifier(Artis.MODID, "block/table" + (type.hasColor()? "_overlay" : "")))));
-				ITEM_MODELS.put(type.getId(), builder -> builder.parent(new Identifier(Artis.MODID, "block/table" + (type.hasColor()? "_overlay" : ""))));
-			}
-			if (type.hasColor()) {
-				ColorProviderRegistry.BLOCK.register((state, world, pos, index) -> type.getColor(), Registry.BLOCK.get(type.getId()));
-				ColorProviderRegistry.ITEM.register((stack, index) -> type.getColor(), Registry.ITEM.get(type.getId()));
-			}
-            BlockRenderLayerMap.INSTANCE.putBlock(Registry.BLOCK.get(type.getId()), RenderLayer.getCutout());
+            ScreenProviderRegistry.INSTANCE.registerFactory(type.getId(), controller -> new ArtisCraftingScreen((ArtisCraftingController) controller, ((ArtisCraftingController) controller).getPlayer()));
+		    if (!(type instanceof ArtisExistingBlockType) && !(type instanceof ArtisExistingItemType)) {
+                if (type.shouldGenerateAssets()) {
+                    BLOCKSTATES.put(type.getId(), builder -> builder.variant("", variant -> variant.model(new Identifier(Artis.MODID, "block/table" + (type.hasColor() ? "_overlay":"")))));
+                    ITEM_MODELS.put(type.getId(), builder -> builder.parent(new Identifier(Artis.MODID, "block/table" + (type.hasColor() ? "_overlay":""))));
+                }
+                if (type.hasColor()) {
+                    ColorProviderRegistry.BLOCK.register((state, world, pos, index) -> type.getColor(), Registry.BLOCK.get(type.getId()));
+                    ColorProviderRegistry.ITEM.register((stack, index) -> type.getColor(), Registry.ITEM.get(type.getId()));
+                }
+                BlockRenderLayerMap.INSTANCE.putBlock(Registry.BLOCK.get(type.getId()), RenderLayer.getCutout());
+            }
 		}
 		Artifice.registerAssets(new Identifier(Artis.MODID, "artis_assets"), assets -> {
 			for (Identifier id : BLOCKSTATES.keySet()) {
@@ -53,8 +57,9 @@ public class ArtisClient implements ClientModInitializer {
 
 	public static Text getName(Identifier id) {
 		String key = "block." + id.getNamespace() + "." + id.getPath();
-		if (Language.getInstance().hasTranslation(key)) return new TranslatableText(key);
-		else {
+		if (Language.getInstance().hasTranslation(key)) {
+            return new TranslatableText(key);
+        } else {
 			String[] split = id.getPath().split("_");
 			StringBuilder builder = new StringBuilder();
 			for (String string : split) {

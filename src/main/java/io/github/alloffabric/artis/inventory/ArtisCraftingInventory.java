@@ -6,8 +6,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.RecipeFinder;
+import net.minecraft.recipe.RecipeType;
 import net.minecraft.util.DefaultedList;
+
+import java.util.Optional;
 
 public class ArtisCraftingInventory extends CraftingInventory {
 	private final DefaultedList<ItemStack> stacks;
@@ -74,9 +78,20 @@ public class ArtisCraftingInventory extends CraftingInventory {
 		return getInvStack(getWidth() * getHeight());
 	}
 
-	public ArtisTableType getType() {
-		return (container).getTableType();
+	public RecipeType getType() {
+        Optional<CraftingRecipe> opt = getPlayer().getEntityWorld().getRecipeManager().getFirstMatch(container.getTableType(), container.getCraftInv(), getPlayer().getEntityWorld());
+        Optional<CraftingRecipe> optCrafting = getPlayer().getEntityWorld().getRecipeManager().getFirstMatch(RecipeType.CRAFTING, container.getCraftInv(), getPlayer().getEntityWorld());
+	    if (opt.isPresent()) {
+            return (container).getTableType();
+        } else if (optCrafting.isPresent()) {
+            return RecipeType.CRAFTING;
+        }
+	    return (container).getTableType();
 	}
+
+	public boolean shouldCompareCatalyst() {
+	    return container.getTableType().hasCatalystSlot();
+    }
 
 	public PlayerEntity getPlayer() {
 		return container.getPlayer();

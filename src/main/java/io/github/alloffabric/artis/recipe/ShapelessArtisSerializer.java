@@ -28,8 +28,8 @@ public class ShapelessArtisSerializer implements RecipeSerializer<ShapelessArtis
 			throw new JsonParseException("Too many ingredients for shapeless " + type.getId().toString() + " recipe");
 		} else {
 			ItemStack output = ShapedRecipe.getItemStack(JsonHelper.getObject(jsonObject, "result"));
-			Ingredient catalyst = Ingredient.fromJson(jsonObject.get("catalyst"));
-			int cost = JsonHelper.getInt(jsonObject, "cost");
+            Ingredient catalyst = JsonHelper.hasElement(jsonObject,"catalyst") ? Ingredient.fromJson(jsonObject.get("catalyst")) : Ingredient.ofStacks(ItemStack.EMPTY);
+			int cost = JsonHelper.hasElement(jsonObject, "cost") ? JsonHelper.getInt(jsonObject, "cost") : 0;
 			return new ShapelessArtisRecipe(type, this, id, group, ingredients, output, catalyst, cost);
 		}
 	}

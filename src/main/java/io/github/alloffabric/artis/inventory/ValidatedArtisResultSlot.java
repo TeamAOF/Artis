@@ -1,5 +1,6 @@
 package io.github.alloffabric.artis.inventory;
 
+import io.github.alloffabric.artis.Artis;
 import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.SpecialCatalyst;
 import io.github.cottonmc.cotton.gui.ValidatedSlot;

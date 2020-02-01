@@ -37,14 +37,16 @@ public class ShapedArtisRecipe extends ShapedRecipe implements ArtisCraftingReci
 		if (!(inventory instanceof ArtisCraftingInventory)) return false;
 		ArtisCraftingInventory artis = (ArtisCraftingInventory)inventory;
 		ItemStack toTest = artis.getCatalyst();
-		if (!catalyst.test(toTest)) return false;
-		if (toTest.isDamageable()) {
-			if (toTest.getMaxDamage() - toTest.getDamage() < catalystCost) return false;
-		} else if (toTest.getItem() instanceof SpecialCatalyst) {
-			if (!((SpecialCatalyst) toTest.getItem()).matches(toTest, catalystCost)) return false;
-		} else {
-			if (toTest.getCount() < catalystCost) return false;
-		}
+		if (artis.shouldCompareCatalyst()) {
+            if (!catalyst.test(toTest)) return false;
+            if (toTest.isDamageable()) {
+                if (toTest.getMaxDamage() - toTest.getDamage() < catalystCost) return false;
+            } else if (toTest.getItem() instanceof SpecialCatalyst) {
+                if (!((SpecialCatalyst) toTest.getItem()).matches(toTest, catalystCost)) return false;
+            } else {
+                if (toTest.getCount() < catalystCost) return false;
+            }
+        }
 
 		for(int i = 0; i <= artis.getWidth() - this.getWidth(); ++i) {
 			for(int j = 0; j <= artis.getHeight() - this.getHeight(); ++j) {
@@ -85,9 +87,9 @@ public class ShapedArtisRecipe extends ShapedRecipe implements ArtisCraftingReci
 
 	@Override
 	public ItemStack craft(CraftingInventory inv) {
-//		if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
-//			return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
-//		}
+		if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
+			return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
+		}
 		return this.getOutput().copy();
 	}
 
