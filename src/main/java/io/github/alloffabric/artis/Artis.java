@@ -42,7 +42,7 @@ public class Artis implements ModInitializer {
 	public void onInitialize() {
 		ArtisData.loadData();
 		ArtisData.loadConfig();
-        ArtisEvents.init();
+		ArtisEvents.init();
 		if (FabricLoader.getInstance().isModLoaded("libcd")) {
 			ArtisTweaker.init();
 		}
