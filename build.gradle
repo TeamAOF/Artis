@@ -39,7 +39,7 @@ repositories {
 	mavenCentral()
 	maven { url "http://server.bbkr.space:8081/artifactory/libs-release" }
 	maven { url "https://minecraft.curseforge.com/api/maven" }
-	maven { url "https://www.jitpack.io" }
+	maven { url "https://jitpack.io" }
 	maven { url "https://maven.swordglowsblue.com" }
 }
 
@@ -54,12 +54,12 @@ dependencies {
 	modApi "io.github.cottonmc:LibGui:1.4.0"
 	modApi "io.github.cottonmc:StaticData:1.1.2"
 	modImplementation("me.shedaniel:RoughlyEnoughItems:3.3.15") { exclude module: "ModMenu" }
-	//modApi "com.github.siphalor:nbt-crafting:1.2.5"
-	modImplementation "com.lettuce.fudge:artifice:0.5.1+1.15.1"
+	modImplementation "com.github.Siphalor:nbt-crafting:1.15-2.0-SNAPSHOT"
+	modImplementation "com.lettuce.fudge:artifice:0.6.0+1.15.2"
 
 	include "io.github.cottonmc:LibGui:1.4.0"
 	include "io.github.cottonmc:StaticData:1.1.2"
-	include "com.lettuce.fudge:artifice:0.5.1+1.15.1"
+	include "com.lettuce.fudge:artifice:0.6.0+1.15.2"
 
 }
 

@@ -1,16 +1,22 @@
 package io.github.alloffabric.artis.compat.rei;
 
 import io.github.alloffabric.artis.Artis;
+import io.github.alloffabric.artis.api.ArtisExistingBlockType;
+import io.github.alloffabric.artis.api.ArtisExistingItemType;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.block.ArtisTableBlock;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeHelper;
 import me.shedaniel.rei.api.plugins.REIPluginV0;
+import me.shedaniel.rei.plugin.autocrafting.DefaultCategoryHandler;
 import net.fabricmc.loader.api.SemanticVersion;
 import net.fabricmc.loader.util.version.VersionParsingException;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -25,7 +31,6 @@ public class ArtisREIPlugin implements REIPluginV0 {
             iconMap.put(block.getType(), block);
         }
     }
-
 
     @Override
     public Identifier getPluginIdentifier() {
@@ -62,6 +67,24 @@ public class ArtisREIPlugin implements REIPluginV0 {
 
         for (ArtisTableBlock block : Artis.ARTIS_TABLE_BLOCKS) {
             recipeHelper.registerWorkingStations(block.getType().getId(), EntryStack.create(block.asItem()));
+        }
+
+        for (ArtisTableType type : Artis.ARTIS_TABLE_TYPES) {
+            if (type instanceof ArtisExistingBlockType) {
+                Block block = Registry.BLOCK.get(type.getId());
+                recipeHelper.registerWorkingStations(type.getId(), EntryStack.create(block.asItem()));
+
+                if (type.shouldIncludeNormalRecipes()) {
+                    recipeHelper.registerWorkingStations(new Identifier("minecraft", "plugins/crafting"), EntryStack.create(block.asItem()));
+                }
+            } else if (type instanceof ArtisExistingItemType) {
+                Item item = Registry.ITEM.get(type.getId());
+                recipeHelper.registerWorkingStations(type.getId(), EntryStack.create(item));
+
+                if (type.shouldIncludeNormalRecipes()) {
+                    recipeHelper.registerWorkingStations(new Identifier("minecraft", "plugins/crafting"), EntryStack.create(item));
+                }
+            }
         }
 	}
 }

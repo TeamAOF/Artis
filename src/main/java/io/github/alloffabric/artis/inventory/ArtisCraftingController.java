@@ -23,6 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeFinder;
+import net.minecraft.recipe.RecipeType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
@@ -77,13 +78,19 @@ public class ArtisCraftingController extends CottonCraftingController {
 		panel.add(label, 0, 0);
 		panel.add(result, layout.getResultX(), layout.getResultY());
 		panel.add(grid, layout.getGridX(), layout.getGridY());
-		panel.add(catalyst, layout.getCatalystX(), layout.getCatalystY());
-		panel.add(catalystCost, layout.getCatalystX(), layout.getCatalystY() + 18);
+		if (type.hasCatalystSlot()) {
+            panel.add(catalyst, layout.getCatalystX(), layout.getCatalystY());
+            panel.add(catalystCost, layout.getCatalystX(), layout.getCatalystY() + 18);
+        }
 		panel.add(playerInv, layout.getPlayerX(), layout.getPlayerY());
 		panel.add(arrow, layout.getArrowX(), layout.getArrowY(), 22, 15);
 
 		panel.validate(this);
 	}
+
+    public ArtisCraftingInventory getCraftInv() {
+        return craftInv;
+    }
 
     public int getCatalystSlot() {
         return catalystSlot;
@@ -95,13 +102,22 @@ public class ArtisCraftingController extends CottonCraftingController {
 
 	@Override
 	public void addPainters() {
-		if (type.hasColor()) {
-			panel.setBackgroundPainter(BackgroundPainter.createColorful(type.getColor()));
-			grid.setBackgroundPainter(slotColor(type.getColor()));
-			catalyst.setBackgroundPainter(slotColor(type.getColor()));
-			result.setBackgroundPainter(slotColor(type.getColor()));
-			playerInv.setBackgroundPainter(slotColor(type.getColor()));
-		}
+	    int color = type.getColor();
+	    if (type.hasColor()) {
+            panel.setBackgroundPainter(BackgroundPainter.createColorful(color));
+            grid.setBackgroundPainter(slotColor(color));
+            if (type.hasCatalystSlot())
+                catalyst.setBackgroundPainter(slotColor(color));
+            result.setBackgroundPainter(slotColor(color));
+            playerInv.setBackgroundPainter(slotColor(color));
+        } else {
+            panel.setBackgroundPainter(BackgroundPainter.VANILLA);
+            grid.setBackgroundPainter(BackgroundPainter.SLOT);
+            if (type.hasCatalystSlot())
+                catalyst.setBackgroundPainter(BackgroundPainter.SLOT);
+            result.setBackgroundPainter(BackgroundPainter.SLOT);
+            playerInv.setBackgroundPainter(BackgroundPainter.SLOT);
+        }
 	}
 
 	private static BackgroundPainter slotColor(int color) {
@@ -165,8 +181,14 @@ public class ArtisCraftingController extends CottonCraftingController {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
             ItemStack stack = ItemStack.EMPTY;
             Optional<CraftingRecipe> opt = world.getServer().getRecipeManager().getFirstMatch(this.type, craftInv, world);
+            Optional<CraftingRecipe> optCrafting = world.getServer().getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftInv, world);
             if (opt.isPresent()) {
                 CraftingRecipe recipe = opt.get();
+                if (resultInv.shouldCraftRecipe(world, serverPlayer, recipe)) {
+                    stack = recipe.craft(craftInv);
+                }
+            } else if (type.shouldIncludeNormalRecipes() && optCrafting.isPresent()) {
+                CraftingRecipe recipe = optCrafting.get();
                 if (resultInv.shouldCraftRecipe(world, serverPlayer, recipe)) {
                     stack = recipe.craft(craftInv);
                 }
@@ -177,11 +199,13 @@ public class ArtisCraftingController extends CottonCraftingController {
         } else if (world.isClient) {
             MinecraftClient client = MinecraftClient.getInstance();
             Optional<CraftingRecipe> opt = client.world.getRecipeManager().getFirstMatch(this.type, craftInv, world);
-            if (opt.isPresent()) {
+            if (type.hasCatalystSlot() && opt.isPresent()) {
                 CraftingRecipe recipe = opt.get();
                 if (recipe instanceof ArtisCraftingRecipe) {
                     ArtisCraftingRecipe artisCraftingRecipe = (ArtisCraftingRecipe) recipe;
-                    catalystCost.setText(new LiteralText(Formatting.RED + "-" + artisCraftingRecipe.getCatalystCost()));
+                    if (!artisCraftingRecipe.getCatalyst().isEmpty() && artisCraftingRecipe.getCatalystCost() > 0) {
+                        catalystCost.setText(new LiteralText(Formatting.RED + "-" + artisCraftingRecipe.getCatalystCost()));
+                    }
                 }
             } else {
                 catalystCost.setText(new LiteralText(""));
@@ -196,7 +220,7 @@ public class ArtisCraftingController extends CottonCraftingController {
 		});
 	}
 
-	ArtisTableType getTableType() {
+	public ArtisTableType getTableType() {
 		return type;
 	}
 
@@ -249,7 +273,7 @@ public class ArtisCraftingController extends CottonCraftingController {
 
 	@Override
     public ItemStack onSlotClick(int slotNumber, int button, SlotActionType action, PlayerEntity player) {
-        if (action == SlotActionType.QUICK_MOVE) {
+	    if (action == SlotActionType.QUICK_MOVE) {
             return transferSlot(player, slotNumber);
         } else {
             return super.onSlotClick(slotNumber, button, action, player);

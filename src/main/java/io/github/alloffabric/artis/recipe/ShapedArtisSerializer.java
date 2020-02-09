@@ -35,8 +35,8 @@ public class ShapedArtisSerializer implements RecipeSerializer<ShapedArtisRecipe
 		int height = pattern.length;
 		DefaultedList<Ingredient> ingredients = getIngredients(pattern, key, width, height);
 		ItemStack output = ShapedRecipe.getItemStack(JsonHelper.getObject(jsonObject, "result"));
-		Ingredient catalyst = Ingredient.fromJson(jsonObject.get("catalyst"));
-		int cost = JsonHelper.getInt(jsonObject, "cost");
+		Ingredient catalyst = JsonHelper.hasElement(jsonObject,"catalyst") ? Ingredient.fromJson(jsonObject.get("catalyst")) : Ingredient.ofStacks(ItemStack.EMPTY);
+        int cost = JsonHelper.hasElement(jsonObject, "cost") ? JsonHelper.getInt(jsonObject, "cost") : 0;
 		return new ShapedArtisRecipe(type, this, id, group, width, height, ingredients, output, catalyst, cost);
 	}
 

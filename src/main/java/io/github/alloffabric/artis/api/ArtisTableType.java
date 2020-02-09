@@ -12,24 +12,28 @@ public class ArtisTableType implements RecipeType {
 	private int width;
 	private int height;
 	private int color = 0;
+	private boolean catalystSlot;
+	private boolean includeNormalRecipes;
 	private boolean generateAssets;
 	private boolean opaque;
 	private boolean hasColor = false;
 	private RecipeSerializer shaped;
 	private RecipeSerializer shapeless;
 
-	public ArtisTableType(Identifier id, int width, int height, boolean makeModel, boolean opaque, int color) {
-		this(id, width, height, makeModel, opaque);
+	public ArtisTableType(Identifier id, int width, int height, boolean catalystSlot, boolean includeNormalRecipes, boolean makeAssets, boolean opaque, int color) {
+		this(id, width, height, catalystSlot, includeNormalRecipes, makeAssets, opaque);
 		this.color = 0xFF000000 | color;
 		this.hasColor = true;
 	}
 
 	//TODO: block settings?
-	public ArtisTableType(Identifier id, int width, int height, boolean makeModel, boolean opaque) {
+	public ArtisTableType(Identifier id, int width, int height, boolean catalystSlot, boolean includeNormalRecipes, boolean makeAssets, boolean opaque) {
 		this.id = id;
 		this.width = width;
 		this.height = height;
-		this.generateAssets = makeModel;
+		this.catalystSlot = catalystSlot;
+		this.includeNormalRecipes = includeNormalRecipes;
+		this.generateAssets = makeAssets;
 		this.opaque = opaque;
 		Identifier shapedId = new Identifier(id.getNamespace(), id.getPath() + "_shaped");
 		Identifier shapelessId = new Identifier(id.getNamespace(), id.getPath() + "_shapeless");
@@ -57,7 +61,15 @@ public class ArtisTableType implements RecipeType {
 		return height;
 	}
 
-	public boolean shouldGenerateAssets() {
+	public boolean hasCatalystSlot() {
+	    return catalystSlot;
+    }
+
+    public boolean shouldIncludeNormalRecipes() {
+        return includeNormalRecipes;
+    }
+
+    public boolean shouldGenerateAssets() {
 		return generateAssets;
 	}
 
