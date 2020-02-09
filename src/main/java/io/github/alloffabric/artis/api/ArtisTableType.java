@@ -15,26 +15,24 @@ public class ArtisTableType implements RecipeType {
 	private boolean catalystSlot;
 	private boolean includeNormalRecipes;
 	private boolean generateAssets;
-	private boolean opaque;
 	private boolean hasColor = false;
 	private RecipeSerializer shaped;
 	private RecipeSerializer shapeless;
 
-	public ArtisTableType(Identifier id, int width, int height, boolean catalystSlot, boolean includeNormalRecipes, boolean makeAssets, boolean opaque, int color) {
-		this(id, width, height, catalystSlot, includeNormalRecipes, makeAssets, opaque);
+	public ArtisTableType(Identifier id, int width, int height, boolean catalystSlot, boolean includeNormalRecipes, boolean makeAssets, int color) {
+		this(id, width, height, catalystSlot, includeNormalRecipes, makeAssets);
 		this.color = 0xFF000000 | color;
 		this.hasColor = true;
 	}
 
 	//TODO: block settings?
-	public ArtisTableType(Identifier id, int width, int height, boolean catalystSlot, boolean includeNormalRecipes, boolean makeAssets, boolean opaque) {
+	public ArtisTableType(Identifier id, int width, int height, boolean catalystSlot, boolean includeNormalRecipes, boolean makeAssets) {
 		this.id = id;
 		this.width = width;
 		this.height = height;
 		this.catalystSlot = catalystSlot;
 		this.includeNormalRecipes = includeNormalRecipes;
 		this.generateAssets = makeAssets;
-		this.opaque = opaque;
 		Identifier shapedId = new Identifier(id.getNamespace(), id.getPath() + "_shaped");
 		Identifier shapelessId = new Identifier(id.getNamespace(), id.getPath() + "_shapeless");
 		this.shaped = Registry.register(Registry.RECIPE_SERIALIZER, shapedId, new ShapedArtisSerializer(this));
@@ -72,10 +70,6 @@ public class ArtisTableType implements RecipeType {
     public boolean shouldGenerateAssets() {
 		return generateAssets;
 	}
-
-    public boolean isOpaque() {
-        return opaque;
-    }
 
     public boolean hasColor() {
 		return hasColor;

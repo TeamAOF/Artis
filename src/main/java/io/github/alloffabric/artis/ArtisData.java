@@ -7,12 +7,14 @@ import blue.endless.jankson.api.SyntaxError;
 import io.github.alloffabric.artis.api.ArtisExistingBlockType;
 import io.github.alloffabric.artis.api.ArtisExistingItemType;
 import io.github.alloffabric.artis.api.ArtisTableType;
+import io.github.alloffabric.artis.util.BlockSettingsParser;
 import io.github.cottonmc.jankson.JanksonFactory;
 import io.github.cottonmc.staticdata.StaticData;
 import io.github.cottonmc.staticdata.StaticDataItem;
 import net.fabricmc.fabric.api.block.FabricBlockSettings;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -37,7 +39,7 @@ public class ArtisData {
 				return;
 			}
 			JsonObject json = jankson.load(file);
-			loadEntries("config", json.containsKey("tables")? (JsonObject)json.get("tables") : json);
+			loadEntries("config", json.containsKey("tables")? json.getObject("tables") : json);
 		} catch (IOException | SyntaxError e) {
 			Artis.logger.error("[Artis] Error loading config: {}", e.getMessage());
 		}
@@ -48,7 +50,7 @@ public class ArtisData {
 		for (StaticDataItem item : data) {
 			try {
 				JsonObject json = jankson.load(item.createInputStream());
-				loadEntries(item.getIdentifier().toString(), json.containsKey("tables")? (JsonObject)json.get("tables") : json);
+				loadEntries(item.getIdentifier().toString(), json.containsKey("tables")? json.getObject("tables") : json);
 			} catch (IOException | SyntaxError e) {
 				Artis.logger.error("[Artis] Error loading static data item {}: {}", item.getIdentifier().toString(), e.getMessage());
 			}
@@ -67,11 +69,12 @@ public class ArtisData {
 			if (elem instanceof JsonObject) {
 				JsonObject config = (JsonObject)elem;
 				ArtisTableType type = getType(key, config);
-				Optional<Block.Settings> settings = Optional.empty();
+				Block.Settings settings;
 				//TODO: better block settings, eventually
 				if (config.containsKey("settings")) {
-					Identifier id = new Identifier(config.get(String.class, "settings"));
-					settings = Optional.of(FabricBlockSettings.copy(Registry.BLOCK.get(id)).build());
+					settings = BlockSettingsParser.parseSettings(config.getObject("settings"));
+				} else {
+					settings = FabricBlockSettings.copy(Blocks.CRAFTING_TABLE).build();
 				}
 				Artis.registerTable(type, settings);
 			}
@@ -81,9 +84,9 @@ public class ArtisData {
 	//TODO: more options for tables
 	static ArtisTableType getType(String key, JsonObject json) {
         Identifier id = new Identifier(key);
-        String tableType = json.containsKey("type") ? json.get(String.class, "type"):"normal";
-        int width = json.get(Integer.class, "width");
-        int height = json.get(Integer.class, "height");
+        String tableType = json.containsKey("type") ? json.get(String.class, "type"): "normal";
+        int width = json.getInt("width", 3);
+        int height = json.getInt("height", 3);
         if (width > 9) {
             Artis.logger.error("[Artis] Table type named {} has too many columns, clamping it to 9", key);
             width = 9;
@@ -92,12 +95,11 @@ public class ArtisData {
             Artis.logger.error("[Artis] Table type named {} has too many rows, clamping it to 9", key);
             height = 9;
         }
-        boolean catalystSlot = json.containsKey("catalyst_slot") ? json.get(Boolean.class, "catalyst_slot") : false;
-        boolean includeNormalRecipes = json.containsKey("normal_recipes") ? json.get(Boolean.class, "normal_recipes") : false;
-        boolean genAssets = json.containsKey("generate_assets") ? json.get(Boolean.class, ("generate_assets")):false;
-        boolean opaque = json.containsKey("opaque") ? json.get(Boolean.class, ("opaque")):true;
+        boolean catalystSlot = json.getInt("catalyst_slot", 0) != 0;
+        boolean includeNormalRecipes = json.getBoolean("normal_recipes", false);
+        boolean genAssets = json.getBoolean("generate_assets", false);
         if (tableType.equals("existing_block")) {
-            if (Registry.BLOCK.containsId(id) || json.containsKey("bypass_check") && json.get(Boolean.class, "bypass_check")) {
+            if (Registry.BLOCK.containsId(id) || json.getBoolean("bypass_check", false)) {
                 if (json.containsKey("color")) {
                     return new ArtisExistingBlockType(id, width, height, catalystSlot, includeNormalRecipes, genAssets, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
                 }
@@ -106,7 +108,7 @@ public class ArtisData {
                 Artis.logger.error("[Artis] Table type named {} could not find the block specified. Are you sure it exists? If it definitely exists, try setting bypass_check to true.", key);
             }
         } else if (tableType.equals("existing_item")) {
-            if (Registry.ITEM.containsId(id) || json.containsKey("bypass_check") && json.get(Boolean.class, "bypass_check")) {
+            if (Registry.ITEM.containsId(id) || json.getBoolean("bypass_check", false)) {
                 if (json.containsKey("color")) {
                     return new ArtisExistingItemType(id, width, height, catalystSlot, includeNormalRecipes, genAssets, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
                 }
@@ -116,9 +118,9 @@ public class ArtisData {
             }
         }
         if (json.containsKey("color")) {
-            return new ArtisTableType(id, width, height, catalystSlot, includeNormalRecipes, genAssets, opaque, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
+            return new ArtisTableType(id, width, height, catalystSlot, includeNormalRecipes, genAssets, Integer.decode(json.get(String.class, "color").replace("#", "0x")));
         }
-        return new ArtisTableType(id, width, height, catalystSlot, includeNormalRecipes, genAssets, opaque);
+        return new ArtisTableType(id, width, height, catalystSlot, includeNormalRecipes, genAssets);
 	}
 
 }

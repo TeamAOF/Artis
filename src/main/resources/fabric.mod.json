@@ -23,6 +23,9 @@
     ],
 	"rei_containers": [
       "io.github.alloffabric.artis.compat.rei.ArtisServerContainerPlugin"
+    ],
+    "libcd": [
+      "io.github.alloffabric.artis.compat.libcd.ArtisLibCDPlugin"
     ]
   },
   "depends": {
