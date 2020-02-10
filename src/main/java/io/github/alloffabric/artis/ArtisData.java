@@ -70,7 +70,6 @@ public class ArtisData {
 				JsonObject config = (JsonObject)elem;
 				ArtisTableType type = getType(key, config);
 				Block.Settings settings;
-				//TODO: better block settings, eventually
 				if (config.containsKey("settings")) {
 					settings = BlockSettingsParser.parseSettings(config.getObject("settings"));
 				} else {
@@ -81,7 +80,7 @@ public class ArtisData {
 		}
 	}
 
-	//TODO: more options for tables
+	//TODO: more options for tables - multiple catalyst slots, fluids, etc?
 	static ArtisTableType getType(String key, JsonObject json) {
         Identifier id = new Identifier(key);
         String tableType = json.containsKey("type") ? json.get(String.class, "type"): "normal";

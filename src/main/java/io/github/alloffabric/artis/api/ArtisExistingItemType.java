@@ -4,10 +4,10 @@ import net.minecraft.util.Identifier;
 
 public class ArtisExistingItemType extends ArtisTableType {
 	public ArtisExistingItemType(Identifier id, int width, int height, boolean catalystSlot, boolean includeNormalRecipes, boolean makeAssets) {
-		super(id, width, height, catalystSlot, includeNormalRecipes, makeAssets, true);
+		super(id, width, height, catalystSlot, includeNormalRecipes, makeAssets);
 	}
 
     public ArtisExistingItemType(Identifier id, int width, int height, boolean catalystSlot, boolean includeNormalRecipes, boolean makeAssets, int color) {
-        super(id, width, height, catalystSlot, includeNormalRecipes, makeAssets, true, color);
+        super(id, width, height, catalystSlot, includeNormalRecipes, makeAssets, color);
     }
 }

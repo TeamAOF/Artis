@@ -25,7 +25,6 @@ public class ArtisTableType implements RecipeType {
 		this.hasColor = true;
 	}
 
-	//TODO: block settings?
 	public ArtisTableType(Identifier id, int width, int height, boolean catalystSlot, boolean includeNormalRecipes, boolean makeAssets) {
 		this.id = id;
 		this.width = width;

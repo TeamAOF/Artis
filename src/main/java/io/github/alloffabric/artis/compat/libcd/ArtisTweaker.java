@@ -37,7 +37,7 @@ public class ArtisTweaker {
 			int height = inputs.length;
 			addShaped(processed, output, width, height, catalyst, cost, group);
 		} catch (Exception e) {
-			tweaker.getLogger().error("Error parsing 2D array shaped recipe - " + e.getMessage());
+			tweaker.getLogger().error("Error parsing Artis table 2D array shaped recipe - " + e.getMessage());
 		}
 	}
 
@@ -66,7 +66,7 @@ public class ArtisTweaker {
 			Ingredient catalystIng = RecipeParser.processIngredient(catalyst);
 			tweaker.addRecipe(new ShapedArtisRecipe(type, type.getShaped(), recipeId, group, width, height, ingredients, stack, catalystIng, cost));
 		} catch (Exception e) {
-			tweaker.getLogger().error("Error parsing 1D array shaped recipe - " + e.getMessage());
+			tweaker.getLogger().error("Error parsing Artis table 1D array shaped recipe - " + e.getMessage());
 		}
 	}
 
@@ -93,7 +93,7 @@ public class ArtisTweaker {
 			Ingredient catalystIng = RecipeParser.processIngredient(catalyst);
 			tweaker.addRecipe(new ShapedArtisRecipe(type, type.getShaped(), recipeId, group, x, y, ingredients, stack, catalystIng, cost));
 		} catch (Exception e) {
-			tweaker.getLogger().error("Error parsing dictionary shaped recipe - " + e.getMessage());
+			tweaker.getLogger().error("Error parsing Artis table dictionary shaped recipe - " + e.getMessage());
 		}
 	}
 
@@ -120,7 +120,7 @@ public class ArtisTweaker {
 			Ingredient catalystIng = RecipeParser.processIngredient(catalyst);
 			tweaker.addRecipe(new ShapelessArtisRecipe(type, type.getShapeless(), recipeId, group, ingredients, stack, catalystIng, cost));
 		} catch (Exception e) {
-			tweaker.getLogger().error("Error parsing shapeless recipe - " + e.getMessage());
+			tweaker.getLogger().error("Error parsing Artis table shapeless recipe - " + e.getMessage());
 		}
 	}
 }
