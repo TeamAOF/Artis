@@ -78,7 +78,7 @@ public class ArtisCraftingInventory extends CraftingInventory {
 		return getInvStack(getWidth() * getHeight());
 	}
 
-	public RecipeType getType() {
+	public RecipeType<? extends CraftingRecipe> getType() {
         Optional<CraftingRecipe> opt = getPlayer().getEntityWorld().getRecipeManager().getFirstMatch(container.getTableType(), container.getCraftInv(), getPlayer().getEntityWorld());
         Optional<CraftingRecipe> optCrafting = getPlayer().getEntityWorld().getRecipeManager().getFirstMatch(RecipeType.CRAFTING, container.getCraftInv(), getPlayer().getEntityWorld());
 	    if (opt.isPresent()) {

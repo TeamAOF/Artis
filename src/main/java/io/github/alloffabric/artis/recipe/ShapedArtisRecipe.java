@@ -6,7 +6,6 @@ import io.github.alloffabric.artis.compat.nbtcrafting.NbtCraftingUtil;
 import io.github.alloffabric.artis.inventory.ArtisCraftingInventory;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.*;
 import net.minecraft.util.DefaultedList;
