@@ -11,12 +11,13 @@ import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.TransferRecipeCategory;
 import me.shedaniel.rei.gui.widget.*;
 import me.shedaniel.rei.impl.ScreenHelper;
-import me.shedaniel.rei.plugin.crafting.DefaultShapedDisplay;
 import me.shedaniel.rei.server.ContainerInfo;
 import me.shedaniel.rei.server.ContainerInfoHandler;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.container.Container;
+import net.minecraft.container.CraftingContainer;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -27,6 +28,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ArtisCategory<R extends Recipe> implements TransferRecipeCategory<ArtisDisplay> {
 	private final ArtisTableType artisTableType;
@@ -51,8 +54,8 @@ public class ArtisCategory<R extends Recipe> implements TransferRecipeCategory<A
     }
 
     public static int getSlotWithSize(ArtisDisplay recipeDisplay, int num, int craftingGridWidth) {
-        int x = num % recipeDisplay.getWidth();
-        int y = (num - x) / recipeDisplay.getWidth();
+        int x = num % recipeDisplay.getDisplay().getWidth();
+        int y = (num - x) / recipeDisplay.getDisplay().getWidth();
         return craftingGridWidth * y + x;
     }
 
@@ -126,16 +129,16 @@ public class ArtisCategory<R extends Recipe> implements TransferRecipeCategory<A
             widgets.add(new ColorableRecipeArrowWidget(slots.get(slots.size() - 1).getX() + 24, startPoint.y + (getDisplayHeight() / 2) - 23, artisTableType.getColor(), false));
             widgets.add(ColorableEntryWidget.create(slots.get(slots.size() - 1).getX() + 55, startPoint.y + (getDisplayHeight() / 2) - 22, artisTableType.getColor()).entry(recipeDisplaySupplier.get().getOutputEntries().get(0)));
             if (artisTableType.hasCatalystSlot())
-                widgets.add(ColorableEntryWidget.create(slots.get(slots.size() - 1).getX() + 28, startPoint.y + (getDisplayHeight() / 2) - 4, artisTableType.getColor()).entry(EntryStack.create(recipeDisplaySupplier.get().getCatalyst().getMatchingStacksClient()[0])));
+                widgets.add(ColorableEntryWidget.create(slots.get(slots.size() - 1).getX() + 28, startPoint.y + (getDisplayHeight() / 2) - 4, artisTableType.getColor()).entries(Stream.of(recipeDisplaySupplier.get().getCatalyst().getMatchingStacksClient()).map(EntryStack::create).collect(Collectors.toList())));
         } else {
-            widgets.add(new RecipeArrowWidget(slots.get(slots.size() - 1).getX() + 24, startPoint.y + (getDisplayHeight() / 2) - 23, false));
+            widgets.add(RecipeArrowWidget.create(new Point(slots.get(slots.size() - 1).getX() + 24, startPoint.y + (getDisplayHeight() / 2) - 23), false));
             widgets.add(EntryWidget.create(slots.get(slots.size() - 1).getX() + 55, startPoint.y + (getDisplayHeight() / 2) - 22).entry(recipeDisplaySupplier.get().getOutputEntries().get(0)));
             if (artisTableType.hasCatalystSlot())
-                widgets.add(EntryWidget.create(slots.get(slots.size() - 1).getX() + 28, startPoint.y + (getDisplayHeight() / 2) - 4).entry(EntryStack.create(recipeDisplaySupplier.get().getCatalyst().getMatchingStacksClient()[0])));
+                widgets.add(EntryWidget.create(slots.get(slots.size() - 1).getX() + 28, startPoint.y + (getDisplayHeight() / 2) - 4).entries(Stream.of(recipeDisplaySupplier.get().getCatalyst().getMatchingStacksClient()).map(EntryStack::create).collect(Collectors.toList())));
         }
 
         if (artisTableType.hasCatalystSlot())
-            widgets.add(new LabelWidget(slots.get(slots.size() - 1).getX() + 35, startPoint.y + (getDisplayHeight() / 2) + 14, Formatting.RED + "-" + recipeDisplaySupplier.get().getCatalystCost()).centered());
+            widgets.add(LabelWidget.create(new Point(slots.get(slots.size() - 1).getX() + 35, startPoint.y + (getDisplayHeight() / 2) + 14), Formatting.RED + "-" + recipeDisplaySupplier.get().getCatalystCost()).centered());
 
         return widgets;
 	}
@@ -147,12 +150,18 @@ public class ArtisCategory<R extends Recipe> implements TransferRecipeCategory<A
             return;
         RenderSystem.translatef(0, 0, 400);
         Point startPoint = new Point(bounds.getCenterX() - (getDisplayWidth(display) / 2) + 17, bounds.getCenterY() - (getDisplayHeight() / 2) + 15);
-        int width = info.getCraftingWidth(ScreenHelper.getLastContainerScreen().getContainer());
+        int width = ((CraftingContainer<Inventory>) ScreenHelper.getLastContainerScreen().getContainer()).getCraftingWidth();
+        int catalystSlot = info.getCraftingHeight(ScreenHelper.getLastContainerScreen().getContainer()) - 1;
         for (Integer slot : redSlots) {
-            int i = slot;
-            int x = i % width;
-            int y = MathHelper.floor(i / (float) width);
-            DrawableHelper.fill(startPoint.x + 1 + x * 18, startPoint.y + 1 + y * 18, startPoint.x + 1 + x * 18 + 16, startPoint.y + 1 + y * 18 + 16, 0x60ff0000);
+            if (catalystSlot == slot) {
+                int y = MathHelper.floor(catalystSlot / (float) width) - 1;
+                DrawableHelper.fill(startPoint.x + 11 + width * 18, startPoint.y + 1 + y * 18, startPoint.x + 11 + width * 18 + 16, startPoint.y + 1 + y * 18 + 16, 0x60ff0000);
+            } else {
+                int i = slot;
+                int x = i % width;
+                int y = MathHelper.floor(i / (float) width);
+                DrawableHelper.fill(startPoint.x + 1 + x * 18, startPoint.y + 1 + y * 18, startPoint.x + 1 + x * 18 + 16, startPoint.y + 1 + y * 18 + 16, 0x60ff0000);
+            }
         }
         RenderSystem.translatef(0, 0, -400);
     }
