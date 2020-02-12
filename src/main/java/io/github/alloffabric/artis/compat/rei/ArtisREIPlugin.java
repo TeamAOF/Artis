@@ -1,14 +1,15 @@
 package io.github.alloffabric.artis.compat.rei;
 
 import io.github.alloffabric.artis.Artis;
+import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisExistingBlockType;
 import io.github.alloffabric.artis.api.ArtisExistingItemType;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.block.ArtisTableBlock;
 import me.shedaniel.rei.api.EntryStack;
+import me.shedaniel.rei.api.RecipeDisplay;
 import me.shedaniel.rei.api.RecipeHelper;
 import me.shedaniel.rei.api.plugins.REIPluginV0;
-import me.shedaniel.rei.plugin.autocrafting.DefaultCategoryHandler;
 import net.fabricmc.loader.api.SemanticVersion;
 import net.fabricmc.loader.util.version.VersionParsingException;
 import net.minecraft.block.Block;
@@ -18,7 +19,9 @@ import net.minecraft.recipe.Recipe;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ArtisREIPlugin implements REIPluginV0 {
@@ -52,12 +55,8 @@ public class ArtisREIPlugin implements REIPluginV0 {
 	@Override
 	public void registerRecipeDisplays(RecipeHelper recipeHelper) {
         for (ArtisTableType type : Artis.ARTIS_TABLE_TYPES) {
-            recipeHelper.registerRecipes(type.getId(), (Predicate<Recipe>) recipe -> {
-                if (recipe.getType() == type) {
-                    return true;
-                }
-                return false;
-            }, ArtisDisplay::new);
+            recipeHelper.registerRecipes(type.getId(), (Predicate<Recipe>) recipe -> recipe.getType() == type,
+                    (Function<ArtisCraftingRecipe, RecipeDisplay>) recipe -> new ArtisDisplay(recipe, type));
         }
 	}
 

@@ -1,25 +1,36 @@
 package io.github.alloffabric.artis.compat.rei;
 
+import com.google.common.collect.Lists;
 import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.plugin.crafting.DefaultCraftingDisplay;
+import me.shedaniel.rei.server.ContainerInfo;
+import net.minecraft.container.Container;
 import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.*;
+import net.minecraft.recipe.CraftingRecipe;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.Recipe;
 import net.minecraft.util.Identifier;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ArtisDisplay implements DefaultCraftingDisplay {
     private ArtisCraftingRecipe display;
+    private ArtisTableType type;
     private Ingredient catalyst;
     private int catalystCost;
     private List<List<EntryStack>> input;
     private List<EntryStack> output;
 
-    public ArtisDisplay(ArtisCraftingRecipe recipe) {
+    public ArtisDisplay(ArtisCraftingRecipe recipe, ArtisTableType type) {
         this.display = recipe;
+        this.type = type;
         this.input = recipe.getPreviewInputs().stream().map(i -> {
             List<EntryStack> entries = new ArrayList<>();
             for (ItemStack stack : i.getMatchingStacksClient()) {
@@ -47,6 +58,10 @@ public class ArtisDisplay implements DefaultCraftingDisplay {
         return Optional.ofNullable(this.display);
     }
 
+    public ArtisCraftingRecipe getDisplay() {
+        return display;
+    }
+
     @Override
     public List<List<EntryStack>> getInputEntries() {
         return this.input;
@@ -64,12 +79,12 @@ public class ArtisDisplay implements DefaultCraftingDisplay {
 
     @Override
     public int getWidth() {
-        return display.getWidth();
+        return 1;
     }
 
     @Override
     public int getHeight() {
-        return display.getHeight();
+        return display.getWidth() * display.getHeight() + 1;
     }
 
     public Ingredient getCatalyst() {
@@ -78,5 +93,17 @@ public class ArtisDisplay implements DefaultCraftingDisplay {
 
     public int getCatalystCost() {
         return catalystCost;
+    }
+
+    @Override
+    public List<List<EntryStack>> getOrganisedInputEntries(ContainerInfo<Container> containerInfo, Container container) {
+        List<List<EntryStack>> entries = DefaultCraftingDisplay.super.getOrganisedInputEntries(containerInfo, container);
+        entries.remove(entries.size() - 1);
+        List<List<EntryStack>> out = Lists.newArrayListWithCapacity(entries.size() + 1);
+        out.addAll(entries);
+        if (type.hasCatalystSlot())
+            out.add(Stream.of(catalyst.getMatchingStacksClient()).map(EntryStack::create).collect(Collectors.toList()));
+        out.add(Collections.emptyList());
+        return out;
     }
 }

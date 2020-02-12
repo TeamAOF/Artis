@@ -39,7 +39,7 @@ dependencies {
 	modImplementation "io.github.cottonmc:LibCD:${project.libcd_version}"
 	modImplementation "io.github.cottonmc:LibGui:${project.libgui_version}"
 	modImplementation "io.github.cottonmc:StaticData:${project.static_data_version}"
-	modImplementation("me.shedaniel:RoughlyEnoughItems:${project.rei_version}") { exclude module: "ModMenu" }
+	modImplementation("me.shedaniel:RoughlyEnoughItems:${project.rei_version}") { exclude module: "modmenu" }
 	modImplementation "com.github.Siphalor:nbt-crafting:${project.nbtcrafting_version}"
 	modImplementation "com.lettuce.fudge:artifice:${project.artifice_version}"
 
