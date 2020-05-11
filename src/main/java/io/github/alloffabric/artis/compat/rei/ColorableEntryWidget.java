@@ -1,8 +1,9 @@
 package io.github.alloffabric.artis.compat.rei;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import me.shedaniel.math.api.Point;
+import me.shedaniel.math.Point;
 import me.shedaniel.rei.gui.widget.EntryWidget;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class ColorableEntryWidget extends EntryWidget {
     private int color;
@@ -37,12 +38,12 @@ public class ColorableEntryWidget extends EntryWidget {
     }
 
     @Override
-    protected void drawBackground(int mouseX, int mouseY, float delta) {
+    protected void drawBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int r = (color & 0xFF0000) >> 16;
         int g = (color & 0xFF00) >> 8;
         int b = (color & 0xFF);
 
         GlStateManager.color4f((r + 30) / 255F, (g + 30) / 255F, (b + 30) / 255F, 1.0F);
-        super.drawBackground(mouseX, mouseY, delta);
+        super.drawBackground(matrices, mouseX, mouseY, delta);
     }
 }

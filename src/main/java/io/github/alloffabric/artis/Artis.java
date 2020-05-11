@@ -13,11 +13,11 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
 import net.minecraft.block.Block;
-import net.minecraft.container.BlockContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
@@ -51,9 +51,9 @@ public class Artis implements ModInitializer {
 	public static void registerTable(ArtisTableType type, Block.Settings settings) {
 		Identifier id = type.getId();
 		if (type.shouldIncludeNormalRecipes()) {
-            ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisNormalCraftingController(type, syncId, player, BlockContext.create(player.world, buf.readBlockPos())));
+            ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisNormalCraftingController(type, syncId, player, ScreenHandlerContext.create(player.world, buf.readBlockPos())));
         } else {
-            ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisCraftingController(type, syncId, player, BlockContext.create(player.world, buf.readBlockPos())));
+            ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisCraftingController(type, syncId, player, ScreenHandlerContext.create(player.world, buf.readBlockPos())));
         }
 		if (!(type instanceof ArtisExistingBlockType) && !(type instanceof ArtisExistingItemType)) {
             ArtisTableBlock block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type, settings));

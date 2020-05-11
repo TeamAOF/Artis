@@ -6,11 +6,11 @@ import io.github.alloffabric.artis.api.ArtisTableType;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.plugin.crafting.DefaultCraftingDisplay;
 import me.shedaniel.rei.server.ContainerInfo;
-import net.minecraft.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ public class ArtisDisplay implements DefaultCraftingDisplay {
     }
 
     @Override
-    public List<List<EntryStack>> getOrganisedInputEntries(ContainerInfo<Container> containerInfo, Container container) {
+    public List<List<EntryStack>> getOrganisedInputEntries(ContainerInfo<ScreenHandler> containerInfo, ScreenHandler container) {
         List<List<EntryStack>> entries = DefaultCraftingDisplay.super.getOrganisedInputEntries(containerInfo, container);
         entries.remove(entries.size() - 1);
         List<List<EntryStack>> out = Lists.newArrayListWithCapacity(entries.size() + 1);

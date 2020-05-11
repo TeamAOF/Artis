@@ -3,9 +3,9 @@ package io.github.alloffabric.artis.inventory;
 import com.google.common.collect.Lists;
 import io.github.cottonmc.cotton.gui.GuiDescription;
 import io.github.cottonmc.cotton.gui.widget.WItemSlot;
-import net.minecraft.container.Slot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.screen.slot.Slot;
 
 import java.util.List;
 

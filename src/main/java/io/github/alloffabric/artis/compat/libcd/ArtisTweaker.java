@@ -7,8 +7,8 @@ import io.github.cottonmc.libcd.api.tweaker.recipe.RecipeParser;
 import io.github.cottonmc.libcd.api.tweaker.recipe.RecipeTweaker;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.Ingredient;
-import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 
 import java.util.Map;
 

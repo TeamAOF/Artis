@@ -11,19 +11,19 @@ import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.*;
 import io.github.cottonmc.cotton.gui.widget.data.Alignment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.packet.ContainerSlotUpdateS2CPacket;
-import net.minecraft.container.BlockContext;
-import net.minecraft.container.Slot;
-import net.minecraft.container.SlotActionType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Formatting;
@@ -37,7 +37,7 @@ public class ArtisCraftingController extends CottonCraftingController {
 	private PlayerEntity player;
 	private ArtisCraftingInventory craftInv;
 	private CraftingResultInventory resultInv;
-	private BlockContext context;
+	private ScreenHandlerContext context;
 
 	private WPlainPanel panel;
 	private WLabel label;
@@ -53,7 +53,7 @@ public class ArtisCraftingController extends CottonCraftingController {
 	private int firstPlayerHotbarSlot;
 	private int lastSlot;
 
-	public ArtisCraftingController(ArtisTableType type, int syncId, PlayerEntity player, BlockContext context) {
+	public ArtisCraftingController(ArtisTableType type, int syncId, PlayerEntity player, ScreenHandlerContext context) {
 		super(type, syncId, player.inventory);
 		catalystSlot = type.getWidth() * type.getHeight() + 1;
 		firstPlayerInvSlot = catalystSlot + 1;
@@ -68,7 +68,7 @@ public class ArtisCraftingController extends CottonCraftingController {
 		this.resultInv = new CraftingResultInventory();
 		label = new WLabel(ArtisClient.getName(type.getId()), 0x404040);
 		grid = new WItemSlot(craftInv, 0, type.getWidth(), type.getHeight(), false, true);
-		catalyst = new WItemSlot(craftInv, craftInv.getInvSize() - 1, 1, 1, false, true);
+		catalyst = new WItemSlot(craftInv, craftInv.size() - 1, 1, 1, false, true);
 		catalystCost = new WLabel("", 0xAA0000).setAlignment(Alignment.CENTER);
 		result = new WArtisResultSlot(player, craftInv, resultInv, 0, 1, 1, true, true, syncId);
 		playerInv = new WPlayerInvPanel(player.inventory);
@@ -194,8 +194,8 @@ public class ArtisCraftingController extends CottonCraftingController {
                 }
             }
 
-            resultInv.setInvStack(0, stack);
-            serverPlayer.networkHandler.sendPacket(new ContainerSlotUpdateS2CPacket(syncId, 0, stack));
+            resultInv.setStack(0, stack);
+            serverPlayer.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(syncId, 0, stack));
         } else if (world.isClient) {
             MinecraftClient client = MinecraftClient.getInstance();
             Optional<CraftingRecipe> opt = client.world.getRecipeManager().getFirstMatch(this.type, craftInv, world);

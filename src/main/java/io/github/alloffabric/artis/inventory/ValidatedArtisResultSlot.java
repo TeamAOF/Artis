@@ -1,17 +1,16 @@
 package io.github.alloffabric.artis.inventory;
 
-import io.github.alloffabric.artis.Artis;
 import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.SpecialCatalyst;
 import io.github.cottonmc.cotton.gui.ValidatedSlot;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.client.network.packet.ContainerSlotUpdateS2CPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeUnlocker;
-import net.minecraft.util.DefaultedList;
+import net.minecraft.util.collection.DefaultedList;
 
 public class ValidatedArtisResultSlot extends ValidatedSlot {
 
@@ -71,19 +70,19 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
 		DefaultedList<ItemStack> remainders = player.world.getRecipeManager().getRemainingStacks(craftingInv.getType(), this.craftingInv, player.world);
 
 		for (int i = 0; i < remainders.size() - 1; ++i) {
-			ItemStack input = this.craftingInv.getInvStack(i);
+			ItemStack input = this.craftingInv.getStack(i);
 			ItemStack remainder = remainders.get(i);
 			if (!input.isEmpty()) {
-				this.craftingInv.takeInvStack(i, 1);
-				input = this.craftingInv.getInvStack(i);
+				this.craftingInv.removeStack(i, 1);
+				input = this.craftingInv.getStack(i);
 			}
 
 			if (!remainder.isEmpty()) {
 				if (input.isEmpty()) {
-					this.craftingInv.setInvStack(i, remainder);
+					this.craftingInv.setStack(i, remainder);
 				} else if (ItemStack.areItemsEqualIgnoreDamage(input, remainder) && ItemStack.areTagsEqual(input, remainder)) {
 					remainder.increment(input.getCount());
-					this.craftingInv.setInvStack(i, remainder);
+					this.craftingInv.setStack(i, remainder);
 				} else if (!this.player.inventory.insertStack(remainder)) {
 					this.player.dropItem(remainder, false);
 				}
@@ -97,7 +96,7 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
 				int catalystSlot = remainders.size() - 1;
 				ItemStack remainder = remainders.get(catalystSlot).copy();
 				if (!remainder.isEmpty()) {
-					this.craftingInv.setInvStack(catalystSlot, remainder);
+					this.craftingInv.setStack(catalystSlot, remainder);
 				} else {
 					ItemStack catalyst = this.craftingInv.getCatalyst().copy();
 					if (catalyst.isDamageable()) {
@@ -107,8 +106,8 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
 					} else {
 						catalyst.decrement(recipe.getCatalystCost());
 					}
-					this.craftingInv.setInvStack(catalystSlot, catalyst);
-					if (!player.world.isClient) ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, new ContainerSlotUpdateS2CPacket(syncId, catalystSlot + 1, catalyst));
+					this.craftingInv.setStack(catalystSlot, catalyst);
+					if (!player.world.isClient) ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, new ScreenHandlerSlotUpdateS2CPacket(syncId, catalystSlot + 1, catalyst));
 				}
 			}
 		}

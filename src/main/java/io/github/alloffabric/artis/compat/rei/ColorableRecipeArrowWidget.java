@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.alloffabric.artis.Artis;
 import me.shedaniel.rei.gui.widget.RecipeArrowWidget;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
@@ -41,17 +42,17 @@ public class ColorableRecipeArrowWidget extends RecipeArrowWidget {
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float delta) {
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         int r = (color & 0xFF0000) >> 16;
         int g = (color & 0xFF00) >> 8;
         int b = (color & 0xFF);
 
         GlStateManager.color4f(r / 255F, g / 255F, b / 255F, 1.0F);
         MinecraftClient.getInstance().getTextureManager().bindTexture(new Identifier(Artis.MODID, "textures/gui/display.png"));
-        blit(x, y, 106, 91, 24, 17);
+        drawTexture(matrices, x, y, 106, 91, 24, 17);
         if (animated) {
             int width = MathHelper.ceil((System.currentTimeMillis() / (time / 24) % 24d) / 1f);
-            blit(x, y, 82, 91, width, 17);
+            drawTexture(matrices, x, y, 82, 91, width, 17);
         }
     }
 }

@@ -8,8 +8,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.*;
-import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
 public class ShapedArtisRecipe extends ShapedRecipe implements ArtisCraftingRecipe {
@@ -75,7 +75,7 @@ public class ShapedArtisRecipe extends ShapedRecipe implements ArtisCraftingReci
 					}
 				}
 
-				if (!ingredient.test(inventory.getInvStack(i + j * inventory.getWidth()))) {
+				if (!ingredient.test(inventory.getStack(i + j * inventory.getWidth()))) {
 					return false;
 				}
 			}

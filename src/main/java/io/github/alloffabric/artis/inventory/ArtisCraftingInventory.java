@@ -1,7 +1,5 @@
 package io.github.alloffabric.artis.inventory;
 
-import io.github.alloffabric.artis.api.ArtisTableType;
-import net.minecraft.container.Container;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventories;
@@ -9,7 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.util.DefaultedList;
+import net.minecraft.util.collection.DefaultedList;
 
 import java.util.Optional;
 
@@ -24,12 +22,12 @@ public class ArtisCraftingInventory extends CraftingInventory {
 	}
 
 	@Override
-	public int getInvSize() {
+	public int size() {
 		return stacks.size();
 	}
 
 	@Override
-	public boolean isInvEmpty() {
+	public boolean isEmpty() {
 		for (ItemStack stack : stacks) {
 			if (!stack.isEmpty()) return false;
 		}
@@ -37,17 +35,17 @@ public class ArtisCraftingInventory extends CraftingInventory {
 	}
 
 	@Override
-	public ItemStack getInvStack(int slot) {
+	public ItemStack getStack(int slot) {
 		return stacks.get(slot);
 	}
 
 	@Override
-	public ItemStack removeInvStack(int slot) {
+	public ItemStack removeStack(int slot) {
 		return Inventories.removeStack(stacks, slot);
 	}
 
 	@Override
-	public ItemStack takeInvStack(int slot, int amount) {
+	public ItemStack removeStack(int slot, int amount) {
 		ItemStack stack = Inventories.splitStack(this.stacks, slot, amount);
 		if (!stack.isEmpty()) {
 			this.container.onContentChanged(this);
@@ -57,7 +55,7 @@ public class ArtisCraftingInventory extends CraftingInventory {
 	}
 
 	@Override
-	public void setInvStack(int slot, ItemStack stack) {
+	public void setStack(int slot, ItemStack stack) {
 		this.stacks.set(slot, stack);
 		this.container.onContentChanged(this);
 	}
@@ -75,7 +73,7 @@ public class ArtisCraftingInventory extends CraftingInventory {
 	}
 
 	public ItemStack getCatalyst() {
-		return getInvStack(getWidth() * getHeight());
+		return getStack(getWidth() * getHeight());
 	}
 
 	public RecipeType<? extends CraftingRecipe> getType() {

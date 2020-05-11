@@ -1,22 +1,36 @@
+buildscript {
+	repositories {
+		jcenter()
+		maven {
+			name = 'Fabric'
+			url = 'http://maven.modmuss50.me/'
+		}
+	}
+	dependencies {
+		classpath "net.fabricmc:fabric-loom:0.2.7-SNAPSHOT"
+	}
+}
+
 plugins {
-	id "java"
-	id "eclipse"
-	id "idea"
-	id "fabric-loom" version "0.2.6-SNAPSHOT"
-	id "maven-publish"
+	id 'java'
+	id 'eclipse'
+	id 'idea'
+	id 'maven-publish'
 	id "com.jfrog.artifactory" version "4.9.0"
 }
+
+apply plugin: net.fabricmc.loom.LoomGradlePlugin
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-if(rootProject.file("private.gradle").exists()) { //Publishing details
-	apply from: "private.gradle"
+if(rootProject.file('private.gradle').exists()) { //Publishing details
+	apply from: 'private.gradle'
 }
 
-archivesBaseName = "${project.archives_base_name}"
-group = "${project.maven_group}"
-version = "${project.mod_version}+${project.minecraft_version}"
+archivesBaseName = "artis"
+group = "io.github.alloffabric"
+version = "1.2.0+20w19a"
 
 minecraft {
 }
@@ -30,22 +44,22 @@ repositories {
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.minecraft_version}+build.${project.yarn_build}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	minecraft "com.mojang:minecraft:20w19a"
+	mappings "net.fabricmc:yarn:20w19a+build.4:v2"
+	modApi "net.fabricmc:fabric-loader:0.8.2+build.194"
+	modApi "net.fabricmc.fabric-api:fabric-api:0.10.5+build.341-1.16"
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 
-	modImplementation "io.github.cottonmc:LibCD:${project.libcd_version}"
-	modImplementation "io.github.cottonmc:LibGui:${project.libgui_version}"
-	modImplementation "io.github.cottonmc:StaticData:${project.static_data_version}"
-	modImplementation("me.shedaniel:RoughlyEnoughItems:${project.rei_version}") { exclude module: "modmenu" }
-	modImplementation "com.github.Siphalor:nbt-crafting:${project.nbtcrafting_version}"
-	modImplementation "com.lettuce.fudge:artifice:${project.artifice_version}"
+	modApi "io.github.cottonmc:LibCD:2.4.0+20w17a"
+	modApi "io.github.cottonmc:LibGui:1.9.0+20w17a"
+	modApi "io.github.cottonmc:StaticData:1.1.2"
+	modImplementation("me.shedaniel:RoughlyEnoughItems:4.3.6-unstable") { exclude module: "ModMenu" }
+	modImplementation "com.github.Siphalor:nbt-crafting:f34844d"
+	modImplementation "com.lettuce.fudge:artifice:0.6.1+20w19a"
 
-	include "io.github.cottonmc:LibGui:${project.libgui_version}"
-	include "io.github.cottonmc:StaticData:${project.static_data_version}"
-	include "com.lettuce.fudge:artifice:${project.artifice_version}"
+	include "io.github.cottonmc:LibGui:1.9.0+20w17a"
+	include "io.github.cottonmc:StaticData:1.1.2"
+	include "com.lettuce.fudge:artifice:0.6.1+20w19a"
 
 }
 

@@ -12,8 +12,8 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.ShapelessRecipe;
-import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
 public class ShapelessArtisRecipe extends ShapelessRecipe implements ArtisCraftingRecipe {
@@ -22,7 +22,7 @@ public class ShapelessArtisRecipe extends ShapelessRecipe implements ArtisCrafti
 	private Ingredient catalyst;
 	private int catalystCost;
 
-	public ShapelessArtisRecipe(RecipeType type, RecipeSerializer serializer, Identifier id, String group, DefaultedList<Ingredient> ingredients,ItemStack output,  Ingredient catalyst, int catalystCost) {
+	public ShapelessArtisRecipe(RecipeType type, RecipeSerializer serializer, Identifier id, String group, DefaultedList<Ingredient> ingredients, ItemStack output, Ingredient catalyst, int catalystCost) {
 		super(id, group, output, ingredients);
 		this.type = type;
 		this.serializer = serializer;
