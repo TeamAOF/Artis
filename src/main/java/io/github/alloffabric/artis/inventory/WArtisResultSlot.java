@@ -2,6 +2,7 @@ package io.github.alloffabric.artis.inventory;
 
 import com.google.common.collect.Lists;
 import io.github.cottonmc.cotton.gui.GuiDescription;
+import io.github.cottonmc.cotton.gui.ValidatedSlot;
 import io.github.cottonmc.cotton.gui.widget.WItemSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -33,14 +34,16 @@ public class WArtisResultSlot extends WItemSlot {
 
 	@Override
 	public void createPeers(GuiDescription c) {
-		peers.clear();
-		int index = startIndex;
-		for (int y = 0; y < slotsHigh; y++) {
-			for (int x = 0; x < slotsWide; x++) {
-				ValidatedArtisResultSlot slot = new ValidatedArtisResultSlot(player, craftingInventory, inventory, index, this.getAbsoluteX() + (x * 18), this.getAbsoluteY() + (y * 18), syncId);
-				peers.add(slot);
+		this.peers.clear();
+		int index = this.startIndex;
+
+		for(int y = 0; y < this.slotsHigh; ++y) {
+			for(int x = 0; x < this.slotsWide; ++x) {
+				ValidatedSlot slot = new ValidatedArtisResultSlot(player, craftingInventory, this.inventory, index, this.getAbsoluteX() + x * 18, this.getAbsoluteY() + y * 18, syncId);
+				slot.setModifiable(true);
+				this.peers.add(slot);
 				c.addSlotPeer(slot);
-				index++;
+				++index;
 			}
 		}
 	}

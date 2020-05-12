@@ -107,7 +107,7 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
 						catalyst.decrement(recipe.getCatalystCost());
 					}
 					this.craftingInv.setStack(catalystSlot, catalyst);
-					if (!player.world.isClient) ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, new ScreenHandlerSlotUpdateS2CPacket(syncId, catalystSlot + 1, catalyst));
+					if (!player.world.isClient) ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, new ScreenHandlerSlotUpdateS2CPacket(syncId, 37, catalyst));
 				}
 			}
 		}
