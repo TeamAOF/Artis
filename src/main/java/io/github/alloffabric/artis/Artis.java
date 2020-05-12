@@ -48,18 +48,22 @@ public class Artis implements ModInitializer {
 		}
 	}
 
-	public static void registerTable(ArtisTableType type, Block.Settings settings) {
+	public static <T extends ArtisTableType> T registerTable(T type, Block.Settings settings) {
+		return registerTable(type, settings, ARTIS_GROUP);
+	}
+
+	public static <T extends ArtisTableType> T registerTable(T type, Block.Settings settings, ItemGroup group) {
 		Identifier id = type.getId();
 		if (type.shouldIncludeNormalRecipes()) {
-            ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisNormalCraftingController(type, syncId, player, ScreenHandlerContext.create(player.world, buf.readBlockPos())));
-        } else {
-            ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisCraftingController(type, syncId, player, ScreenHandlerContext.create(player.world, buf.readBlockPos())));
-        }
+			ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisNormalCraftingController(type, syncId, player, ScreenHandlerContext.create(player.world, buf.readBlockPos())));
+		} else {
+			ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisCraftingController(type, syncId, player, ScreenHandlerContext.create(player.world, buf.readBlockPos())));
+		}
 		if (!(type instanceof ArtisExistingBlockType) && !(type instanceof ArtisExistingItemType)) {
-            ArtisTableBlock block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type, settings));
-            ARTIS_TABLE_BLOCKS.add(block);
-            Registry.register(Registry.ITEM, id, new ArtisTableItem(block, new Item.Settings().group(ARTIS_GROUP)));
-        }
-        Registry.register(ARTIS_TABLE_TYPES, id, type);
+			ArtisTableBlock block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type, settings));
+			ARTIS_TABLE_BLOCKS.add(block);
+			Registry.register(Registry.ITEM, id, new ArtisTableItem(block, new Item.Settings().group(group)));
+		}
+		return Registry.register(ARTIS_TABLE_TYPES, id, type);
 	}
 }
