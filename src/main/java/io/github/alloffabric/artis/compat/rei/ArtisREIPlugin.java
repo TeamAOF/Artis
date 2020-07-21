@@ -10,6 +10,8 @@ import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeDisplay;
 import me.shedaniel.rei.api.RecipeHelper;
 import me.shedaniel.rei.api.plugins.REIPluginV0;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.SemanticVersion;
 import net.fabricmc.loader.util.version.VersionParsingException;
 import net.minecraft.block.Block;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+@Environment(EnvType.CLIENT)
 public class ArtisREIPlugin implements REIPluginV0 {
     public static final Identifier PLUGIN = new Identifier(Artis.MODID, "artis_plugin");
 
@@ -39,11 +42,6 @@ public class ArtisREIPlugin implements REIPluginV0 {
     public Identifier getPluginIdentifier() {
         return PLUGIN;
     }
-
-	@Override
-	public SemanticVersion getMinimumVersion() throws VersionParsingException {
-		return SemanticVersion.parse("3.0-pre");
-	}
 
 	@Override
 	public void registerPluginCategories(RecipeHelper recipeHelper) {

@@ -1,5 +1,6 @@
 package io.github.alloffabric.artis;
 
+import com.mojang.serialization.Lifecycle;
 import io.github.alloffabric.artis.api.ArtisExistingBlockType;
 import io.github.alloffabric.artis.api.ArtisExistingItemType;
 import io.github.alloffabric.artis.api.ArtisTableType;
@@ -12,6 +13,8 @@ import io.github.alloffabric.artis.util.ArtisRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
+import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
+import net.fabricmc.fabric.impl.screenhandler.ExtendedScreenHandlerType;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -20,6 +23,7 @@ import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,7 +36,7 @@ public class Artis implements ModInitializer {
 
     public static final ArrayList<ArtisTableBlock> ARTIS_TABLE_BLOCKS = new ArrayList<>();
 
-	public static final ArtisRegistry<ArtisTableType> ARTIS_TABLE_TYPES = new ArtisRegistry<>();
+	public static final ArtisRegistry<ArtisTableType> ARTIS_TABLE_TYPES = new ArtisRegistry<>(RegistryKey.ofRegistry(new Identifier(MODID, "artis_table_types")), Lifecycle.stable());
 
 	public static final ItemGroup ARTIS_GROUP = FabricItemGroupBuilder.build(new Identifier(MODID, "artis_group"), () -> new ItemStack(Items.CRAFTING_TABLE));
 
@@ -55,9 +59,13 @@ public class Artis implements ModInitializer {
 	public static <T extends ArtisTableType> T registerTable(T type, Block.Settings settings, ItemGroup group) {
 		Identifier id = type.getId();
 		if (type.shouldIncludeNormalRecipes()) {
-			ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisNormalCraftingController(type, syncId, player, ScreenHandlerContext.create(player.world, buf.readBlockPos())));
+			ExtendedScreenHandlerType<ArtisNormalCraftingController> screenHandlerType = new ExtendedScreenHandlerType<>((syncId, playerInventory, buf) -> new ArtisNormalCraftingController(null, type, syncId, playerInventory.player, ScreenHandlerContext.create(playerInventory.player.world, buf.readBlockPos())));
+			ScreenHandlerRegistry.registerExtended(id, (syncId, playerInventory, buf) -> new ArtisNormalCraftingController(screenHandlerType, type, syncId, playerInventory.player, ScreenHandlerContext.create(playerInventory.player.world, buf.readBlockPos())));
+			//ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisNormalCraftingController(type, syncId, player, ScreenHandlerContext.create(player.world, buf.readBlockPos())));
 		} else {
-			ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisCraftingController(type, syncId, player, ScreenHandlerContext.create(player.world, buf.readBlockPos())));
+			ExtendedScreenHandlerType<ArtisCraftingController> screenHandlerType = new ExtendedScreenHandlerType<>((syncId, playerInventory, buf) -> new ArtisCraftingController(null, type, syncId, playerInventory.player, ScreenHandlerContext.create(playerInventory.player.world, buf.readBlockPos())));
+			ScreenHandlerRegistry.registerExtended(id, (syncId, playerInventory, buf) -> new ArtisCraftingController(screenHandlerType, type, syncId, playerInventory.player, ScreenHandlerContext.create(playerInventory.player.world, buf.readBlockPos())));
+			//ContainerProviderRegistry.INSTANCE.registerFactory(id, (syncId, containerId, player, buf) -> new ArtisCraftingController(type, syncId, player, ScreenHandlerContext.create(player.world, buf.readBlockPos())));
 		}
 		if (!(type instanceof ArtisExistingBlockType) && !(type instanceof ArtisExistingItemType)) {
 			ArtisTableBlock block = Registry.register(Registry.BLOCK, id, new ArtisTableBlock(type, settings));

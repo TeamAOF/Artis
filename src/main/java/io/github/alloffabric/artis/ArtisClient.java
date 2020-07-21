@@ -10,10 +10,14 @@ import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.inventory.ArtisCraftingController;
 import io.github.alloffabric.artis.inventory.ArtisCraftingScreen;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.screen.ScreenProviderRegistry;
+import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -30,9 +34,10 @@ public class ArtisClient implements ClientModInitializer {
 	public static final Map<Identifier, Processor<ModelBuilder>> ITEM_MODELS = new HashMap<>();
 
 	@Override
+	@Environment(EnvType.CLIENT)
 	public void onInitializeClient() {
 		for (ArtisTableType type : Artis.ARTIS_TABLE_TYPES) {
-            ScreenProviderRegistry.INSTANCE.registerFactory(type.getId(), controller -> new ArtisCraftingScreen((ArtisCraftingController) controller, ((ArtisCraftingController) controller).getPlayer()));
+            ScreenRegistry.register((ScreenHandlerType<ArtisCraftingController>) Registry.SCREEN_HANDLER.get(type.getId()), (ScreenRegistry.Factory<ArtisCraftingController, ArtisCraftingScreen>) ArtisCraftingScreen::new);
 		    if (!(type instanceof ArtisExistingBlockType) && !(type instanceof ArtisExistingItemType)) {
                 if (type.shouldGenerateAssets()) {
                     BLOCKSTATES.put(type.getId(), builder -> builder.variant("", variant -> variant.model(new Identifier(Artis.MODID, "block/table" + (type.hasColor() ? "_overlay":"")))));

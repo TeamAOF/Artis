@@ -6,13 +6,18 @@ import io.github.alloffabric.artis.inventory.ArtisCraftingController;
 import io.github.alloffabric.artis.inventory.ArtisNormalCraftingController;
 import me.shedaniel.rei.plugin.containers.CraftingContainerInfoWrapper;
 import me.shedaniel.rei.server.ContainerInfoHandler;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
+@Environment(EnvType.CLIENT)
 public class ArtisServerContainerPlugin implements Runnable {
     @Override
     public void run() {
         for (ArtisTableType type : Artis.ARTIS_TABLE_TYPES) {
-            ContainerInfoHandler.registerContainerInfo(type.getId(), new CraftingContainerInfoWrapper<ArtisCraftingController>(ArtisCraftingController.class) {
+            ContainerInfoHandler.registerContainerInfo(type.getId(), new RecipeProviderInfoWrapper<ArtisCraftingController>(ArtisCraftingController.class) {
                 @Override
                 public int getCraftingWidth(ArtisCraftingController container) {
                     return 1;
@@ -25,6 +30,6 @@ public class ArtisServerContainerPlugin implements Runnable {
             });
         }
 
-        ContainerInfoHandler.registerContainerInfo(new Identifier("minecraft", "plugins/crafting"), CraftingContainerInfoWrapper.create(ArtisNormalCraftingController.class));
+        ContainerInfoHandler.registerContainerInfo(new Identifier("minecraft", "plugins/crafting"), RecipeProviderInfoWrapper.create(ArtisNormalCraftingController.class));
     }
 }

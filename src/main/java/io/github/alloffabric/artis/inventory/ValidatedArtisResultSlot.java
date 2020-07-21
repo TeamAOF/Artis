@@ -3,6 +3,8 @@ package io.github.alloffabric.artis.inventory;
 import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.SpecialCatalyst;
 import io.github.cottonmc.cotton.gui.ValidatedSlot;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;

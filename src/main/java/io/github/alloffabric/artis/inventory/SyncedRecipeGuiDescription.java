@@ -1,10 +1,9 @@
-package io.github.cottonmc.cotton.gui;
+package io.github.alloffabric.artis.inventory;
 
-import java.util.ArrayList;
-import java.util.function.Supplier;
-
-import javax.annotation.Nullable;
-
+import io.github.cottonmc.cotton.gui.EmptyInventory;
+import io.github.cottonmc.cotton.gui.GuiDescription;
+import io.github.cottonmc.cotton.gui.PropertyDelegateHolder;
+import io.github.cottonmc.cotton.gui.ValidatedSlot;
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.LibGuiClient;
 import io.github.cottonmc.cotton.gui.widget.*;
@@ -20,21 +19,27 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.screen.*;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.function.Supplier;
+
 /**
- * A screen handler-based GUI description for GUIs with slots.
+ * A screen handler-based GUI description for GUIs with slots and recipes.
  */
-public class SyncedGuiDescription extends ScreenHandler implements GuiDescription {
-	
+public class SyncedRecipeGuiDescription extends AbstractRecipeScreenHandler implements GuiDescription {
+
 	protected Inventory blockInventory;
 	protected PlayerInventory playerInventory;
 	protected World world;
 	protected PropertyDelegate propertyDelegate;
-	
+
 	protected WPanel rootPanel = new WGridPanel();
 	protected int titleColor = WLabel.DEFAULT_TEXT_COLOR;
 	protected int darkTitleColor = WLabel.DEFAULT_DARKMODE_TEXT_COLOR;
@@ -44,15 +49,15 @@ public class SyncedGuiDescription extends ScreenHandler implements GuiDescriptio
 
 	protected WWidget focus;
 
-	public SyncedGuiDescription(ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory) {
+	public SyncedRecipeGuiDescription(ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory) {
 		super(type, syncId);
 		this.blockInventory = null;
 		this.playerInventory = playerInventory;
 		this.world = playerInventory.player.world;
 		this.propertyDelegate = null;//new ArrayPropertyDelegate(1);
 	}
-	
-	public SyncedGuiDescription(ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory, Inventory blockInventory, PropertyDelegate propertyDelegate) {
+
+	public SyncedRecipeGuiDescription(ScreenHandlerType<?> type, int syncId, PlayerInventory playerInventory, Inventory blockInventory, PropertyDelegate propertyDelegate) {
 		super(type, syncId);
 		this.blockInventory = blockInventory;
 		this.playerInventory = playerInventory;
@@ -69,20 +74,20 @@ public class SyncedGuiDescription extends ScreenHandler implements GuiDescriptio
 		return (world.isClient && LibGuiClient.config.darkMode) ? darkTitleColor : titleColor;
 	}
 	
-	public SyncedGuiDescription setRootPanel(WPanel panel) {
+	public SyncedRecipeGuiDescription setRootPanel(WPanel panel) {
 		this.rootPanel = panel;
 		return this;
 	}
 
 	@Override
-	public SyncedGuiDescription setTitleColor(int color) {
+	public SyncedRecipeGuiDescription setTitleColor(int color) {
 		this.titleColor = color;
 		this.darkTitleColor = (color == WLabel.DEFAULT_TEXT_COLOR) ? WLabel.DEFAULT_DARKMODE_TEXT_COLOR : color;
 		return this;
 	}
 
 	@Override
-	public SyncedGuiDescription setTitleColor(int lightColor, int darkColor) {
+	public SyncedRecipeGuiDescription setTitleColor(int lightColor, int darkColor) {
 		this.titleColor = lightColor;
 		this.darkTitleColor = darkColor;
 		return this;
@@ -284,17 +289,20 @@ public class SyncedGuiDescription extends ScreenHandler implements GuiDescriptio
 	}
 	
 	@Nullable
+	@Environment(EnvType.CLIENT)
 	public WWidget doMouseUp(int x, int y, int state) {
 		if (rootPanel!=null) return rootPanel.onMouseUp(x, y, state);
 		return null;
 	}
 	
 	@Nullable
+	@Environment(EnvType.CLIENT)
 	public WWidget doMouseDown(int x, int y, int button) {
 		if (rootPanel!=null) return rootPanel.onMouseDown(x, y, button);
 		return null;
 	}
-	
+
+	@Environment(EnvType.CLIENT)
 	public void doMouseDrag(int x, int y, int button, double deltaX, double deltaY) {
 		if (rootPanel!=null) rootPanel.onMouseDrag(x, y, button, deltaX, deltaY);
 	}
@@ -316,7 +324,8 @@ public class SyncedGuiDescription extends ScreenHandler implements GuiDescriptio
 		
 		//if (rootPanel!=null) rootPanel.onClick(x, y, button);
 	}
-	
+
+	@Environment(EnvType.CLIENT)
 	public void doCharType(char ch) {
 		if (focus!=null) focus.onCharTyped(ch);
 	}
@@ -549,5 +558,40 @@ public class SyncedGuiDescription extends ScreenHandler implements GuiDescriptio
 	@Override
 	public void setTitleAlignment(HorizontalAlignment titleAlignment) {
 		this.titleAlignment = titleAlignment;
+	}
+
+	@Override
+	public void populateRecipeFinder(RecipeFinder finder) {
+
+	}
+
+	@Override
+	public void clearCraftingSlots() {
+
+	}
+
+	@Override
+	public boolean matches(Recipe recipe) {
+		return false;
+	}
+
+	@Override
+	public int getCraftingResultSlotIndex() {
+		return 0;
+	}
+
+	@Override
+	public int getCraftingWidth() {
+		return 0;
+	}
+
+	@Override
+	public int getCraftingHeight() {
+		return 0;
+	}
+
+	@Override
+	public int getCraftingSlotCount() {
+		return 0;
 	}
 }

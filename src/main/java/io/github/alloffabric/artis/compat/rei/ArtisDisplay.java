@@ -6,6 +6,8 @@ import io.github.alloffabric.artis.api.ArtisTableType;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.plugin.crafting.DefaultCraftingDisplay;
 import me.shedaniel.rei.server.ContainerInfo;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Ingredient;
@@ -20,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Environment(EnvType.CLIENT)
 public class ArtisDisplay implements DefaultCraftingDisplay {
     private ArtisCraftingRecipe display;
     private ArtisTableType type;

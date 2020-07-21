@@ -1,6 +1,8 @@
 package io.github.alloffabric.artis.block;
 
 import io.github.alloffabric.artis.ArtisClient;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -21,6 +23,7 @@ public class ArtisTableItem extends BlockItem {
 	}
 
 	@Override
+	@Environment(EnvType.CLIENT)
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
 		if (context.isAdvanced()) tooltip.add(new TranslatableText("tooltip.artis.source").formatted(Formatting.BLUE, Formatting.ITALIC));
 	}

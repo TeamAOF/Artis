@@ -8,10 +8,13 @@ import me.shedaniel.rei.api.DisplayVisibilityHandler;
 import me.shedaniel.rei.api.RecipeCategory;
 import me.shedaniel.rei.api.RecipeDisplay;
 import me.shedaniel.rei.api.RecipeHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 
+@Environment(EnvType.CLIENT)
 public class ArtisDisplayVisibilityHandler implements DisplayVisibilityHandler {
     @Override
     public ActionResult handleDisplay(RecipeCategory<?> recipeCategory, RecipeDisplay recipeDisplay) {

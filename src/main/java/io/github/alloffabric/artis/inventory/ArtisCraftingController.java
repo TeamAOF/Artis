@@ -4,25 +4,26 @@ import io.github.alloffabric.artis.Artis;
 import io.github.alloffabric.artis.ArtisClient;
 import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisTableType;
-import io.github.alloffabric.artis.recipe.ShapedArtisRecipe;
-import io.github.cottonmc.cotton.gui.CottonCraftingController;
+import io.github.alloffabric.artis.api.RecipeProvider;
+import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.*;
-import io.github.cottonmc.cotton.gui.widget.data.Alignment;
-import net.minecraft.client.MinecraftClient;
+import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.screen.ScreenHandlerContext;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,11 +32,10 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-import java.util.Iterator;
 import java.util.Optional;
 
-public class ArtisCraftingController extends CottonCraftingController {
-	private ArtisTableType type;
+public class ArtisCraftingController extends SyncedGuiDescription implements RecipeProvider {
+	private ArtisTableType tableType;
 	private PlayerEntity player;
 	private ArtisCraftingInventory craftInv;
 	private CraftingResultInventory resultInv;
@@ -49,29 +49,29 @@ public class ArtisCraftingController extends CottonCraftingController {
 	private WArtisResultSlot result;
 	private WPlayerInvPanel playerInv;
 
-	public ArtisCraftingController(ArtisTableType type, int syncId, PlayerEntity player, ScreenHandlerContext context) {
-		super(type, syncId, player.inventory);
+	public ArtisCraftingController(ScreenHandlerType type, ArtisTableType tableType, int syncId, PlayerEntity player, ScreenHandlerContext context) {
+		super(type, syncId, player.inventory, getBlockInventory(context), getBlockPropertyDelegate(context));
 
-		this.type = type;
+		this.tableType = tableType;
 		this.player = player;
 		this.context = context;
 
 		this.resultInv = new CraftingResultInventory();
-		this.craftInv = new ArtisCraftingInventory(this, type.getWidth(), type.getHeight());
+		this.craftInv = new ArtisCraftingInventory(this, tableType.getWidth(), tableType.getHeight());
 
-		ContainerLayout layout = new ContainerLayout(type.getWidth(), type.getHeight());
+		ContainerLayout layout = new ContainerLayout(tableType.getWidth(), tableType.getHeight());
 
 		panel = new WPlainPanel();
 		setRootPanel(panel);
 
-		this.result = new WArtisResultSlot(player, craftInv, resultInv, 0, 1, 1, true, true, syncId);
-		panel.add(result, layout.getResultX(), layout.getResultY());
+		this.result = new WArtisResultSlot(player, craftInv, resultInv, 0, 1, 1, true, syncId);
+		panel.add(result, layout.getResultX(), layout.getResultY() + 3);
 
 		if (getTableType().hasCatalystSlot()) {
 			this.catalyst = WItemSlot.of(craftInv, craftInv.size() - 1);
 			panel.add(catalyst, layout.getCatalystX(), layout.getCatalystY());
 
-			this.catalystCost = new WLabel("", 0xAA0000).setAlignment(Alignment.CENTER);
+			this.catalystCost = new WLabel("", 0xAA0000).setHorizontalAlignment(HorizontalAlignment.CENTER);
 			panel.add(catalystCost, layout.getCatalystX(), layout.getCatalystY() + 18);
 		}
 
@@ -81,11 +81,11 @@ public class ArtisCraftingController extends CottonCraftingController {
 		this.playerInv = this.createPlayerInventoryPanel();
 		panel.add(playerInv, layout.getPlayerX(), layout.getPlayerY());
 
-		this.label = new WLabel(ArtisClient.getName(type.getId()), 0x404040);
+		this.label = new WLabel(ArtisClient.getName(tableType.getId()), 0x404040);
 		panel.add(label, 0, 0);
 
 		WSprite arrow = new WSprite(new Identifier(Artis.MODID, "textures/gui/arrow.png"));
-		panel.add(arrow, layout.getArrowX(), layout.getArrowY(), 22, 15);
+		panel.add(arrow, layout.getArrowX(), layout.getArrowY() + 4, 22, 15);
 
 		panel.validate(this);
 	}
@@ -99,19 +99,20 @@ public class ArtisCraftingController extends CottonCraftingController {
 	}
 
 	@Override
+	@Environment(EnvType.CLIENT)
 	public void addPainters() {
-	    int color = type.getColor();
-	    if (type.hasColor()) {
+	    int color = tableType.getColor();
+	    if (tableType.hasColor()) {
             panel.setBackgroundPainter(BackgroundPainter.createColorful(color));
             grid.setBackgroundPainter(slotColor(color));
-            if (type.hasCatalystSlot())
+            if (tableType.hasCatalystSlot())
                 catalyst.setBackgroundPainter(slotColor(color));
             result.setBackgroundPainter(slotColor(color));
             playerInv.setBackgroundPainter(slotColor(color));
         } else {
             panel.setBackgroundPainter(BackgroundPainter.VANILLA);
             grid.setBackgroundPainter(BackgroundPainter.SLOT);
-            if (type.hasCatalystSlot())
+            if (tableType.hasCatalystSlot())
                 catalyst.setBackgroundPainter(BackgroundPainter.SLOT);
             result.setBackgroundPainter(BackgroundPainter.SLOT);
             playerInv.setBackgroundPainter(BackgroundPainter.SLOT);
@@ -131,9 +132,9 @@ public class ArtisCraftingController extends CottonCraftingController {
 				for(int x = 0; x < slot.getWidth() / 18; ++x) {
 					for(int y = 0; y < slot.getHeight() / 18; ++y) {
 						if (slot.isBigSlot()) {
-							ScreenDrawing.drawBeveledPanel(x * 18 + left - 4, y * 18 + top - 4, 24, 24, lo, bg, hi);
+							ScreenDrawing.drawBeveledPanel(x * 18 + left - 3, y * 18 + top - 3, 24, 24, lo, bg, hi);
 						} else {
-							ScreenDrawing.drawBeveledPanel(x * 18 + left - 1, y * 18 + top - 1, 18, 18, lo, bg, hi);
+							ScreenDrawing.drawBeveledPanel(x * 18 + left, y * 18 + top, 18, 18, lo, bg, hi);
 						}
 					}
 				}
@@ -151,22 +152,22 @@ public class ArtisCraftingController extends CottonCraftingController {
 
 	@Override
 	public int getCraftingWidth() {
-		return type.getWidth();
+		return tableType.getWidth();
 	}
 
 	@Override
 	public int getCraftingHeight() {
-		return type.getHeight();
+		return tableType.getHeight();
 	}
 
 	@Override
-	public boolean matches(Recipe<? super Inventory> recipe) {
+	public boolean matches(Recipe recipe) {
 		return recipe.matches(craftInv, player.world);
 	}
 
 	@Override
 	public int getCraftingResultSlotIndex() {
-		return 36;
+		return 0;
 	}
 
 	@Override
@@ -178,14 +179,14 @@ public class ArtisCraftingController extends CottonCraftingController {
 		if (!world.isClient) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
             ItemStack stack = ItemStack.EMPTY;
-            Optional<CraftingRecipe> opt = world.getServer().getRecipeManager().getFirstMatch(this.type, craftInv, world);
+            Optional<CraftingRecipe> opt = world.getServer().getRecipeManager().getFirstMatch(this.tableType, craftInv, world);
             Optional<CraftingRecipe> optCrafting = world.getServer().getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftInv, world);
             if (opt.isPresent()) {
                 CraftingRecipe recipe = opt.get();
                 if (resultInv.shouldCraftRecipe(world, serverPlayer, recipe)) {
                     stack = recipe.craft(craftInv);
                 }
-            } else if (type.shouldIncludeNormalRecipes() && optCrafting.isPresent()) {
+            } else if (tableType.shouldIncludeNormalRecipes() && optCrafting.isPresent()) {
                 CraftingRecipe recipe = optCrafting.get();
                 if (resultInv.shouldCraftRecipe(world, serverPlayer, recipe)) {
                     stack = recipe.craft(craftInv);
@@ -194,10 +195,9 @@ public class ArtisCraftingController extends CottonCraftingController {
 
             resultInv.setStack(0, stack);
             serverPlayer.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(syncId, getCraftingResultSlotIndex(), stack));
-        } else if (world.isClient) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            Optional<CraftingRecipe> opt = client.world.getRecipeManager().getFirstMatch(this.type, craftInv, world);
-            if (type.hasCatalystSlot() && opt.isPresent()) {
+        } else {
+            Optional<CraftingRecipe> opt = world.getRecipeManager().getFirstMatch(this.tableType, craftInv, world);
+            if (tableType.hasCatalystSlot() && opt.isPresent()) {
                 CraftingRecipe recipe = opt.get();
                 if (recipe instanceof ArtisCraftingRecipe) {
                     ArtisCraftingRecipe artisCraftingRecipe = (ArtisCraftingRecipe) recipe;
@@ -219,7 +219,7 @@ public class ArtisCraftingController extends CottonCraftingController {
 	}
 
 	public ArtisTableType getTableType() {
-		return type;
+		return tableType;
 	}
 
 	@Override
