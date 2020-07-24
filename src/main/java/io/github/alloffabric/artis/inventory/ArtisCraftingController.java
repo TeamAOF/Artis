@@ -15,6 +15,7 @@ import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
@@ -37,6 +38,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ArtisCraftingController extends SyncedGuiDescription implements RecipeProvider {
@@ -68,7 +70,6 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
                 craftInv.setStack(i, blockInventory.getStack(i));
             }
         }
-
         ContainerLayout layout = new ContainerLayout(tableType.getWidth(), tableType.getHeight());
 
         panel = new WPlainPanel();
@@ -98,6 +99,11 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
         panel.add(arrow, layout.getArrowX(), layout.getArrowY() + 4, 22, 15);
 
         panel.validate(this);
+        craftInv.setCheckMatrixChanges(true);
+        if (player.world.isClient) {
+            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+            ClientSidePacketRegistry.INSTANCE.sendToServer(Artis.request_sync, buf);
+        }
     }
 
     private static BackgroundPainter slotColor(int color) {
@@ -193,6 +199,16 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
     @Override
     public int getCraftingSlotCount() {
         return getTableType().getWidth() * getTableType().getHeight();
+    }
+
+    // update crafting
+    //clientside only
+    @Override
+    public void updateSlotStacks(List<ItemStack> stacks) {
+        craftInv.setCheckMatrixChanges(false);
+        super.updateSlotStacks(stacks);
+        craftInv.setCheckMatrixChanges(true);
+        onContentChanged(null);
     }
 
     //leaving here in case it's needed

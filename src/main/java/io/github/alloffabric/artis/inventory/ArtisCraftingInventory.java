@@ -14,7 +14,7 @@ import java.util.Optional;
 public class ArtisCraftingInventory extends CraftingInventory {
     private final DefaultedList<ItemStack> stacks;
     private final ArtisCraftingController container;
-    private boolean checkMatrixChanges = true;
+    private boolean checkMatrixChanges = false;
 
     public ArtisCraftingInventory(ArtisCraftingController container, int width, int height) {
         super(container, width, height);
@@ -97,5 +97,9 @@ public class ArtisCraftingInventory extends CraftingInventory {
 
     public void setCheckMatrixChanges(boolean b) {
         this.checkMatrixChanges = b;
+    }
+
+    public DefaultedList<ItemStack> getStacks() {
+        return stacks;
     }
 }

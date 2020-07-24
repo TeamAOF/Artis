@@ -96,7 +96,6 @@ public class ArtisClient implements ClientModInitializer {
                         }
                     });
                 });
-
     }
 
     public static void updateLastRecipe(ArtisCraftingController container, Recipe<CraftingInventory> rec) {

@@ -13,15 +13,21 @@ import io.github.alloffabric.artis.inventory.ArtisCraftingController;
 import io.github.alloffabric.artis.util.ArtisRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.fabricmc.fabric.impl.screenhandler.ExtendedScreenHandlerType;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.recipe.Recipe;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -37,6 +43,7 @@ public class Artis implements ModInitializer {
     public static final String MODID = "artis";
 
     public static final Identifier recipe_sync = new Identifier(MODID,"sync_recipe");
+    public static final Identifier request_sync = new Identifier(MODID,"request_sync");
     public static final Identifier dummy = new Identifier("null","null");
 
     public static final Logger logger = LogManager.getLogger();
@@ -83,6 +90,17 @@ public class Artis implements ModInitializer {
             ArtisEvents.init();
             isLoaded = true;
             ARTIS_BLOCK_ENTITY = registerBlockEntity("artis_table", ArtisTableBlockEntity::new, Arrays.copyOf(ARTIS_TABLE_BLOCKS.toArray(), ARTIS_TABLE_BLOCKS.size(), ArtisTableBlock[].class));
+
+            //seems to be required to not have the recipe vanish when initially opened
+            ServerSidePacketRegistry.INSTANCE.register(Artis.request_sync,
+                    (packetContext, attachedData) -> {
+                        packetContext.getTaskQueue().execute(() -> {
+                            ScreenHandler container = packetContext.getPlayer().currentScreenHandler;
+                            if (container instanceof ArtisCraftingController) {
+                                container.onContentChanged(null);
+                            }
+                        });
+                    });
         }
     }
 }

@@ -6,6 +6,8 @@ import io.github.alloffabric.artis.inventory.ArtisCraftingInventory;
 import io.github.cottonmc.cotton.gui.ValidatedSlot;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
@@ -28,6 +30,11 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
     }
 
     @Override
+    public void setStack(ItemStack stack) {
+        //super.setStack(stack);
+    }
+
+    @Override
     public boolean canInsert(ItemStack stack) {
         return false;
     }
@@ -37,7 +44,6 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
         if (this.hasStack()) {
             this.amount += Math.min(amount, this.getStack().getCount());
         }
-
         return super.takeStack(amount);
     }
 
@@ -57,19 +63,13 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
         if (this.amount > 0) {
             stack.onCraft(this.player.world, this.player, this.amount);
         }
-
-        if (this.inventory instanceof RecipeUnlocker) {
-            ((RecipeUnlocker) this.inventory).unlockLastRecipe(this.player);
-        }
-
         this.amount = 0;
     }
 
     @Override
     public ItemStack onTakeItem(PlayerEntity player, ItemStack stack) {
         this.onCrafted(stack);
-        DefaultedList<ItemStack> remainders = player.world.getRecipeManager().getRemainingStacks(craftingInv.getType(), this.craftingInv, player.world);
-
+        DefaultedList<ItemStack> remainders = getRemainders(); //= player.world.getRecipeManager().getRemainingStacks(craftingInv.getType(), this.craftingInv, player.world);
         for (int i = 0; i < remainders.size() - 1; ++i) {
             ItemStack input = this.craftingInv.getStack(i);
             ItemStack remainder = remainders.get(i);
@@ -115,5 +115,14 @@ public class ValidatedArtisResultSlot extends ValidatedSlot {
         }
 
         return stack;
+    }
+
+    //note: inventory is actually CraftingResultInventory so it's a safe cast
+    public DefaultedList<ItemStack> getRemainders() {
+        Recipe<CraftingInventory> lastRecipe = (Recipe<CraftingInventory>) ((CraftingResultInventory)this.inventory).getLastRecipe();
+        if (lastRecipe != null &&
+                lastRecipe.matches(craftingInv, player.world))
+            return lastRecipe.getRemainingStacks(craftingInv);
+        else return craftingInv.getStacks();
     }
 }
