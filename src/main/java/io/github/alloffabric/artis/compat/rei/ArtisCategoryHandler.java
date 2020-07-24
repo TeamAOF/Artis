@@ -60,15 +60,17 @@ public class ArtisCategoryHandler implements AutoTransferHandler {
 
     @Override
     public Result handle(Context context) {
-        if (!(context.getContainer() instanceof ArtisCraftingController) || context.getContainer() instanceof ArtisCraftingController && !(context.getRecipe() instanceof ArtisDisplay) && context.getRecipe().getRecipeCategory().equals(DefaultPlugin.CRAFTING) && !((ArtisCraftingController) context.getContainer()).getTableType().shouldIncludeNormalRecipes())
+        if (!(context.getContainer() instanceof ArtisCraftingController))
             return Result.createNotApplicable();
+        if (context.getContainer() instanceof ArtisCraftingController && !(context.getRecipe() instanceof ArtisDisplay) && context.getRecipe().getRecipeCategory().equals(DefaultPlugin.CRAFTING) && !((ArtisCraftingController) context.getContainer()).getTableType().shouldIncludeNormalRecipes())
+            return Result.createNotApplicable().blocksFurtherHandling(false);
         TransferRecipeDisplay recipe = (TransferRecipeDisplay) context.getRecipe();
         HandledScreen<?> containerScreen = context.getContainerScreen();
         ArtisCraftingController container = (ArtisCraftingController) context.getContainer();
         ContainerInfo<ScreenHandler> containerInfo = (ContainerInfo<ScreenHandler>) ContainerInfoHandler.getContainerInfo(recipe.getRecipeCategory(), container.getClass());
         RecipeProviderInfoWrapper<ArtisCraftingController> recipeProvider = (RecipeProviderInfoWrapper<ArtisCraftingController>) ContainerInfoHandler.getContainerInfo(recipe.getRecipeCategory(), container.getClass());
         if (containerInfo == null || context.getRecipe() instanceof ArtisDisplay && !recipeProvider.getTableType(container).getId().equals(recipe.getRecipeCategory()))
-            return Result.createNotApplicable();
+            return Result.createNotApplicable().blocksFurtherHandling(false);
         if (recipe.getHeight() > containerInfo.getCraftingHeight(container) || recipe.getWidth() > containerInfo.getCraftingWidth(container))
             return Result.createFailed(I18n.translate("error.rei.transfer.too_small", containerInfo.getCraftingWidth(container), containerInfo.getCraftingHeight(container)));
         List<List<EntryStack>> input = recipe.getOrganisedInputEntries(containerInfo, container);

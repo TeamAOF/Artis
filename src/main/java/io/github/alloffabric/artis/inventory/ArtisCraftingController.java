@@ -2,7 +2,6 @@ package io.github.alloffabric.artis.inventory;
 
 import io.github.alloffabric.artis.Artis;
 import io.github.alloffabric.artis.ArtisClient;
-import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.api.ContainerLayout;
 import io.github.alloffabric.artis.api.RecipeProvider;
@@ -23,8 +22,6 @@ import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeFinder;
 import net.minecraft.recipe.RecipeType;
@@ -32,14 +29,10 @@ import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 import java.util.List;
-import java.util.Optional;
 
 public class ArtisCraftingController extends SyncedGuiDescription implements RecipeProvider {
     private final ArtisTableType tableType;
@@ -204,48 +197,12 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
     // update crafting
     //clientside only
     @Override
+    @Environment(EnvType.CLIENT)
     public void updateSlotStacks(List<ItemStack> stacks) {
         craftInv.setCheckMatrixChanges(false);
         super.updateSlotStacks(stacks);
         craftInv.setCheckMatrixChanges(true);
         onContentChanged(null);
-    }
-
-    //leaving here in case it's needed
-    public void updateResult(int syncId, World world, PlayerEntity player, CraftingInventory craftInv, CraftingResultInventory resultInv) {
-        if (!world.isClient) {
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
-            ItemStack stack = ItemStack.EMPTY;
-            Optional<CraftingRecipe> opt = world.getServer().getRecipeManager().getFirstMatch(this.tableType, craftInv, world);
-            Optional<CraftingRecipe> optCrafting = world.getServer().getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftInv, world);
-            if (opt.isPresent()) {
-                CraftingRecipe recipe = opt.get();
-                if (resultInv.shouldCraftRecipe(world, serverPlayer, recipe)) {
-                    stack = recipe.craft(craftInv);
-                }
-            } else if (tableType.shouldIncludeNormalRecipes() && optCrafting.isPresent()) {
-                CraftingRecipe recipe = optCrafting.get();
-                if (resultInv.shouldCraftRecipe(world, serverPlayer, recipe)) {
-                    stack = recipe.craft(craftInv);
-                }
-            }
-
-            resultInv.setStack(0, stack);
-            serverPlayer.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(syncId, getCraftingResultSlotIndex(), stack));
-        } else {
-            Optional<CraftingRecipe> opt = world.getRecipeManager().getFirstMatch(this.tableType, craftInv, world);
-            if (tableType.hasCatalystSlot() && opt.isPresent()) {
-                CraftingRecipe recipe = opt.get();
-                if (recipe instanceof ArtisCraftingRecipe) {
-                    ArtisCraftingRecipe artisCraftingRecipe = (ArtisCraftingRecipe) recipe;
-                    if (!artisCraftingRecipe.getCatalyst().isEmpty() && artisCraftingRecipe.getCatalystCost() > 0 && catalystCost != null) {
-                        catalystCost.setText(new LiteralText(Formatting.RED + "-" + artisCraftingRecipe.getCatalystCost()));
-                    }
-                }
-            } else if (tableType.hasCatalystSlot() && catalystCost != null) {
-                catalystCost.setText(new LiteralText(""));
-            }
-        }
     }
 
     //like vanilla, but not a pile of lag

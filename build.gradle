@@ -30,7 +30,7 @@ if(rootProject.file('private.gradle').exists()) { //Publishing details
 
 archivesBaseName = "artis"
 group = "io.github.alloffabric"
-version = "1.4.1+1.16.1"
+version = "${project.mod_version}+${project.minecraft_version}"
 
 minecraft {
 }

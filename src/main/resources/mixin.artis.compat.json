@@ -5,7 +5,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [],
   "client": [
-    "DefaultCategoryHandlerMixin"
+    
   ],
   "injectors": {
     "defaultRequire": 0
