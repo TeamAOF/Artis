@@ -36,6 +36,9 @@ import java.util.function.Supplier;
 public class Artis implements ModInitializer {
     public static final String MODID = "artis";
 
+    public static final Identifier recipe_sync = new Identifier(MODID,"sync_recipe");
+    public static final Identifier dummy = new Identifier("null","null");
+
     public static final Logger logger = LogManager.getLogger();
 
     public static final ArrayList<ArtisTableBlock> ARTIS_TABLE_BLOCKS = new ArrayList<>();

@@ -15,7 +15,16 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.CraftingResultInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.Recipe;
+import net.minecraft.screen.CraftingScreenHandler;
+import net.minecraft.screen.PlayerScreenHandler;
+import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -75,6 +84,33 @@ public class ArtisClient implements ClientModInitializer {
                 assets.addItemModel(id, ITEM_MODELS.get(id));
             }
         });
+
+        ClientSidePacketRegistry.INSTANCE.register(Artis.recipe_sync,
+                (packetContext, attachedData) -> {
+                    Identifier location = attachedData.readIdentifier();
+                    packetContext.getTaskQueue().execute(() -> {
+                        ScreenHandler container = packetContext.getPlayer().currentScreenHandler;
+                        if (container instanceof ArtisCraftingController) {
+                            Recipe<?> r = MinecraftClient.getInstance().world.getRecipeManager().get(location).orElse(null);
+                            updateLastRecipe((ArtisCraftingController) packetContext.getPlayer().currentScreenHandler, (Recipe<CraftingInventory>) r);
+                        }
+                    });
+                });
+
+    }
+
+    public static void updateLastRecipe(ArtisCraftingController container, Recipe<CraftingInventory> rec) {
+
+        CraftingInventory craftInput = container.getCraftInv();
+        CraftingResultInventory craftResult = container.getResultInv();
+
+        if (craftInput == null) {
+            System.out.println("why are these null?");
+        } else {
+            craftResult.setLastRecipe(rec);
+            if (rec != null) craftResult.setStack(0, rec.craft(craftInput));
+            else craftResult.setStack(0, ItemStack.EMPTY);
+        }
     }
 
 }
