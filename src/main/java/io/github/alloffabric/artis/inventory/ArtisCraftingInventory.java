@@ -14,6 +14,7 @@ import java.util.Optional;
 public class ArtisCraftingInventory extends CraftingInventory {
     private final DefaultedList<ItemStack> stacks;
     private final ArtisCraftingController container;
+    private boolean checkMatrixChanges = false;
 
     public ArtisCraftingInventory(ArtisCraftingController container, int width, int height) {
         super(container, width, height);
@@ -48,16 +49,15 @@ public class ArtisCraftingInventory extends CraftingInventory {
     public ItemStack removeStack(int slot, int amount) {
         ItemStack stack = Inventories.splitStack(this.stacks, slot, amount);
         if (!stack.isEmpty()) {
-            this.container.onContentChanged(this);
+            if (checkMatrixChanges)this.container.onContentChanged(this);
         }
-
         return stack;
     }
 
     @Override
     public void setStack(int slot, ItemStack stack) {
         this.stacks.set(slot, stack);
-        this.container.onContentChanged(this);
+        if (checkMatrixChanges)this.container.onContentChanged(this);
     }
 
     @Override
@@ -93,5 +93,13 @@ public class ArtisCraftingInventory extends CraftingInventory {
 
     public PlayerEntity getPlayer() {
         return container.getPlayer();
+    }
+
+    public void setCheckMatrixChanges(boolean b) {
+        this.checkMatrixChanges = b;
+    }
+
+    public DefaultedList<ItemStack> getStacks() {
+        return stacks;
     }
 }

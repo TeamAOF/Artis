@@ -12,13 +12,17 @@ import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
 import io.github.cottonmc.cotton.gui.widget.*;
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment;
+import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Recipe;
@@ -34,6 +38,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ArtisCraftingController extends SyncedGuiDescription implements RecipeProvider {
@@ -65,7 +70,6 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
                 craftInv.setStack(i, blockInventory.getStack(i));
             }
         }
-
         ContainerLayout layout = new ContainerLayout(tableType.getWidth(), tableType.getHeight());
 
         panel = new WPlainPanel();
@@ -95,6 +99,11 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
         panel.add(arrow, layout.getArrowX(), layout.getArrowY() + 4, 22, 15);
 
         panel.validate(this);
+        craftInv.setCheckMatrixChanges(true);
+        if (player.world.isClient) {
+            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+            ClientSidePacketRegistry.INSTANCE.sendToServer(Artis.request_sync, buf);
+        }
     }
 
     private static BackgroundPainter slotColor(int color) {
@@ -122,6 +131,10 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
 
     public ArtisCraftingInventory getCraftInv() {
         return craftInv;
+    }
+
+    public CraftingResultInventory getResultInv() {
+        return resultInv;
     }
 
     public PlayerEntity getPlayer() {
@@ -188,6 +201,17 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
         return getTableType().getWidth() * getTableType().getHeight();
     }
 
+    // update crafting
+    //clientside only
+    @Override
+    public void updateSlotStacks(List<ItemStack> stacks) {
+        craftInv.setCheckMatrixChanges(false);
+        super.updateSlotStacks(stacks);
+        craftInv.setCheckMatrixChanges(true);
+        onContentChanged(null);
+    }
+
+    //leaving here in case it's needed
     public void updateResult(int syncId, World world, PlayerEntity player, CraftingInventory craftInv, CraftingResultInventory resultInv) {
         if (!world.isClient) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
@@ -224,11 +248,40 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
         }
     }
 
+    //like vanilla, but not a pile of lag
+    public static void updateResult(World world, PlayerEntity player, CraftingInventory inv, CraftingResultInventory result, ArtisTableType artisTableType) {
+        if (!world.isClient) {
+
+            ItemStack itemstack = ItemStack.EMPTY;
+
+            boolean isArtis = false;
+
+            Recipe<CraftingInventory> recipe = (Recipe<CraftingInventory>) result.getLastRecipe();
+            //find artis recipe first
+            if (recipe == null || !recipe.matches(inv, world)) {
+                recipe = findArtisRecipe(artisTableType,inv, world);
+                if (recipe != null) isArtis = true;
+            }
+            //else fall back to vanilla
+            if (recipe == null && artisTableType.shouldIncludeNormalRecipes()) {
+                recipe = findVanillaRecipe(inv,world);
+            }
+            //there is no matching recipe
+            if (recipe != null) {
+                itemstack = recipe.craft(inv);
+            }
+
+            result.setStack(0, itemstack);
+            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+            buf.writeIdentifier(recipe != null ? recipe.getId(): Artis.dummy);
+            ServerSidePacketRegistry.INSTANCE.sendToPlayer(player, Artis.recipe_sync, buf);
+            result.setLastRecipe(recipe);
+        }
+    }
+
     @Override
     public void onContentChanged(Inventory inv) {
-        this.context.run((world, pos) -> {
-            updateResult(this.syncId, world, this.player, this.craftInv, this.resultInv);
-        });
+        updateResult(world,player,craftInv,resultInv,tableType);
     }
 
     @Override
@@ -241,18 +294,12 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
         ItemStack stack = ItemStack.EMPTY;
         Slot slot = this.slots.get(slotIndex);
         if (slot != null && slot.hasStack()) {
+            if (slotIndex == getCraftingResultSlotIndex()) {
+                int slotcount = getCraftingSlotCount() + (tableType.hasCatalystSlot() ? 1 : 0);
+                return handleShiftCraft(player,this,slot,craftInv,resultInv,slotcount,slotcount + 36);
+            }
             ItemStack toTake = slot.getStack();
             stack = toTake.copy();
-            if (slotIndex == getCraftingResultSlotIndex()) {
-                this.context.run((world, pos) -> {
-                    toTake.getItem().onCraft(toTake, world, player);
-                });
-                if (!this.insertItem(toTake, 0, 35, true)) {
-                    return ItemStack.EMPTY;
-                }
-
-                slot.onStackChanged(toTake, stack);
-            }
 
             if (toTake.isEmpty()) {
                 slot.setStack(ItemStack.EMPTY);
@@ -296,5 +343,51 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
     @Override
     public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
         return slot.inventory != this.resultInv && super.canInsertIntoSlot(stack, slot);
+    }
+
+    public static ItemStack handleShiftCraft(PlayerEntity player, ArtisCraftingController container, Slot resultSlot, ArtisCraftingInventory input, CraftingResultInventory craftResult, int outStart, int outEnd) {
+        ItemStack outputCopy = ItemStack.EMPTY;
+        input.setCheckMatrixChanges(false);
+        if (resultSlot != null && resultSlot.hasStack()) {
+
+            Recipe<CraftingInventory> recipe = (Recipe<CraftingInventory>) craftResult.getLastRecipe();
+            if (recipe == null && container.tableType.shouldIncludeNormalRecipes()) {
+                recipe = findVanillaRecipe(input,player.world);
+            }
+            while (recipe != null && recipe.matches(input, player.world)) {
+                ItemStack recipeOutput = resultSlot.getStack().copy();
+                outputCopy = recipeOutput.copy();
+
+                recipeOutput.getItem().onCraft(recipeOutput, player.world, player);
+
+                if (!player.world.isClient && !container.insertItem(recipeOutput, outStart, outEnd,true)) {
+                    input.setCheckMatrixChanges(true);
+                    return ItemStack.EMPTY;
+                }
+
+                resultSlot.onStackChanged(recipeOutput, outputCopy);
+                resultSlot.markDirty();
+
+                if (!player.world.isClient && recipeOutput.getCount() == outputCopy.getCount()) {
+                    input.setCheckMatrixChanges(true);
+                    return ItemStack.EMPTY;
+                }
+
+                ItemStack itemstack2 = resultSlot.onTakeItem(player, recipeOutput);
+                player.dropItem(itemstack2, false);
+            }
+            input.setCheckMatrixChanges(true);
+            updateResult(player.world, player, input, craftResult, container.tableType);
+        }
+        input.setCheckMatrixChanges(true);
+        return craftResult.getLastRecipe() == null ? ItemStack.EMPTY : outputCopy;
+    }
+
+    public static Recipe<CraftingInventory> findArtisRecipe(ArtisTableType tableType, CraftingInventory inv, World world) {
+        return (Recipe<CraftingInventory>) world.getRecipeManager().getFirstMatch(tableType, inv, world).orElse(null);
+    }
+
+    public static Recipe<CraftingInventory> findVanillaRecipe(CraftingInventory inv, World world) {
+        return world.getRecipeManager().getFirstMatch(RecipeType.CRAFTING, inv, world).orElse(null);
     }
 }
