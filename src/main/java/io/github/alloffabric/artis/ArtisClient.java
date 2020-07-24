@@ -52,7 +52,7 @@ public class ArtisClient implements ClientModInitializer {
     @Environment(EnvType.CLIENT)
     public void onInitializeClient() {
         for (ArtisTableType type : Artis.ARTIS_TABLE_TYPES) {
-            ScreenRegistry.register((ScreenHandlerType<ArtisCraftingController>) Registry.SCREEN_HANDLER.get(type.getId()), ArtisCraftingScreen::new);
+            ScreenRegistry.register((ScreenHandlerType<ArtisCraftingController>) Registry.SCREEN_HANDLER.get(type.getId()), (ScreenRegistry.Factory<ArtisCraftingController, ArtisCraftingScreen>) ArtisCraftingScreen::new);
             if (!(type instanceof ArtisExistingBlockType) && !(type instanceof ArtisExistingItemType)) {
                 if (type.shouldGenerateAssets()) {
                     BLOCKSTATES.put(type.getId(), builder -> builder.variant("", variant -> variant.model(new Identifier(Artis.MODID, "block/table" + (type.hasColor() ? "_overlay" : "")))));
