@@ -24,12 +24,12 @@ import java.util.stream.Stream;
 
 @Environment(EnvType.CLIENT)
 public class ArtisDisplay implements DefaultCraftingDisplay {
-    private ArtisCraftingRecipe display;
-    private ArtisTableType type;
-    private Ingredient catalyst;
-    private int catalystCost;
-    private List<List<EntryStack>> input;
-    private List<EntryStack> output;
+    private final ArtisCraftingRecipe display;
+    private final ArtisTableType type;
+    private final Ingredient catalyst;
+    private final int catalystCost;
+    private final List<List<EntryStack>> input;
+    private final List<EntryStack> output;
 
     public ArtisDisplay(ArtisCraftingRecipe recipe, ArtisTableType type) {
         this.display = recipe;
@@ -82,12 +82,12 @@ public class ArtisDisplay implements DefaultCraftingDisplay {
 
     @Override
     public int getWidth() {
-        return 1;
+        return display.getWidth();
     }
 
     @Override
     public int getHeight() {
-        return display.getWidth() * display.getHeight() + 1;
+        return display.getHeight();
     }
 
     public Ingredient getCatalyst() {
@@ -101,12 +101,13 @@ public class ArtisDisplay implements DefaultCraftingDisplay {
     @Override
     public List<List<EntryStack>> getOrganisedInputEntries(ContainerInfo<ScreenHandler> containerInfo, ScreenHandler container) {
         List<List<EntryStack>> entries = DefaultCraftingDisplay.super.getOrganisedInputEntries(containerInfo, container);
-        entries.remove(entries.size() - 1);
-        List<List<EntryStack>> out = Lists.newArrayListWithCapacity(entries.size() + 1);
-        out.addAll(entries);
-        if (type.hasCatalystSlot())
+        if (type.hasCatalystSlot()) {
+            List<List<EntryStack>> out = Lists.newArrayListWithCapacity(entries.size() + 1);
             out.add(Stream.of(catalyst.getMatchingStacksClient()).map(EntryStack::create).collect(Collectors.toList()));
-        out.add(Collections.emptyList());
-        return out;
+            out.addAll(entries);
+
+            return out;
+        }
+        return entries;
     }
 }

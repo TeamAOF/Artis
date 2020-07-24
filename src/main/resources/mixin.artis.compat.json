@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "io.github.alloffabric.artis.compat.mixin",
+  "minVersion": "0.7.11",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [],
+  "client": [
+    "DefaultCategoryHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

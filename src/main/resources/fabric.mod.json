@@ -28,6 +28,9 @@
       "io.github.alloffabric.artis.compat.libcd.ArtisLibCDPlugin"
     ]
   },
+  "mixins": [
+    "mixin.artis.compat.json"
+  ],
   "depends": {
     "fabricloader": ">=0.4.0"
   }

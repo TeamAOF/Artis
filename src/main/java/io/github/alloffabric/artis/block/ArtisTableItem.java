@@ -16,25 +16,27 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class ArtisTableItem extends BlockItem {
-	private Identifier tableId;
-	public ArtisTableItem(ArtisTableBlock block, Settings settings) {
-		super(block, settings);
-		this.tableId = block.getType().getId();
-	}
+    private final Identifier tableId;
 
-	@Override
-	@Environment(EnvType.CLIENT)
-	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-		if (context.isAdvanced()) tooltip.add(new TranslatableText("tooltip.artis.source").formatted(Formatting.BLUE, Formatting.ITALIC));
-	}
+    public ArtisTableItem(ArtisTableBlock block, Settings settings) {
+        super(block, settings);
+        this.tableId = block.getType().getId();
+    }
 
-	@Override
-	public Text getName(ItemStack stack) {
-		return ArtisClient.getName(tableId);
-	}
+    @Override
+    @Environment(EnvType.CLIENT)
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        if (context.isAdvanced())
+            tooltip.add(new TranslatableText("tooltip.artis.source").formatted(Formatting.BLUE, Formatting.ITALIC));
+    }
 
-	@Override
-	public Text getName() {
-		return ArtisClient.getName(tableId);
-	}
+    @Override
+    public Text getName(ItemStack stack) {
+        return ArtisClient.getName(tableId);
+    }
+
+    @Override
+    public Text getName() {
+        return ArtisClient.getName(tableId);
+    }
 }

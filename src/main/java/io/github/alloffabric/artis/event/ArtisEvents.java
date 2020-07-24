@@ -8,22 +8,12 @@ import io.github.alloffabric.artis.inventory.ArtisScreenFactory;
 import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.registry.Registry;
-
-import javax.annotation.Nullable;
 
 public class ArtisEvents {
     public static void init() {
@@ -33,7 +23,8 @@ public class ArtisEvents {
             if (Artis.ARTIS_TABLE_TYPES.hasId(identifier)) {
                 ArtisTableType type = Artis.ARTIS_TABLE_TYPES.get(identifier);
                 if (type instanceof ArtisExistingBlockType) {
-                    if (!world.isClient) playerEntity.openHandledScreen(new ArtisScreenFactory(type, block, blockHitResult));
+                    if (!world.isClient)
+                        playerEntity.openHandledScreen(new ArtisScreenFactory(type, block, blockHitResult));
                     return ActionResult.SUCCESS;
                 }
             }

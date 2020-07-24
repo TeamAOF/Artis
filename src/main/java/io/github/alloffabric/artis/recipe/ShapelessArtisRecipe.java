@@ -17,30 +17,30 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
 public class ShapelessArtisRecipe extends ShapelessRecipe implements ArtisCraftingRecipe {
-	private RecipeType type;
-	private RecipeSerializer serializer;
-	private Ingredient catalyst;
-	private int catalystCost;
+    private final RecipeType type;
+    private final RecipeSerializer serializer;
+    private final Ingredient catalyst;
+    private final int catalystCost;
 
-	public ShapelessArtisRecipe(RecipeType type, RecipeSerializer serializer, Identifier id, String group, DefaultedList<Ingredient> ingredients, ItemStack output, Ingredient catalyst, int catalystCost) {
-		super(id, group, output, ingredients);
-		this.type = type;
-		this.serializer = serializer;
-		this.catalyst = catalyst;
-		this.catalystCost = catalystCost;
-	}
+    public ShapelessArtisRecipe(RecipeType type, RecipeSerializer serializer, Identifier id, String group, DefaultedList<Ingredient> ingredients, ItemStack output, Ingredient catalyst, int catalystCost) {
+        super(id, group, output, ingredients);
+        this.type = type;
+        this.serializer = serializer;
+        this.catalyst = catalyst;
+        this.catalystCost = catalystCost;
+    }
 
-	@Override
-	public boolean isIgnoredInRecipeBook() {
-		return true;
-	}
+    @Override
+    public boolean isIgnoredInRecipeBook() {
+        return true;
+    }
 
-	@Override
-	public boolean matches(CraftingInventory inventory, World world) {
-		if (!(inventory instanceof ArtisCraftingInventory)) return false;
-		ArtisCraftingInventory artis = (ArtisCraftingInventory)inventory;
-		ItemStack toTest = artis.getCatalyst();
-		if (artis.shouldCompareCatalyst()) {
+    @Override
+    public boolean matches(CraftingInventory inventory, World world) {
+        if (!(inventory instanceof ArtisCraftingInventory)) return false;
+        ArtisCraftingInventory artis = (ArtisCraftingInventory) inventory;
+        ItemStack toTest = artis.getCatalyst();
+        if (artis.shouldCompareCatalyst()) {
             if (!catalyst.test(toTest)) return false;
             if (toTest.isDamageable()) {
                 if (toTest.getMaxDamage() - toTest.getDamage() < catalystCost) return false;
@@ -50,36 +50,36 @@ public class ShapelessArtisRecipe extends ShapelessRecipe implements ArtisCrafti
                 if (toTest.getCount() < catalystCost) return false;
             }
         }
-		return super.matches(inventory, world);
-	}
+        return super.matches(inventory, world);
+    }
 
-	@Override
-	public ItemStack craft(CraftingInventory inv) {
-		if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
-			return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
-		}
-		return this.getOutput().copy();
-	}
+    @Override
+    public ItemStack craft(CraftingInventory inv) {
+        if (FabricLoader.getInstance().isModLoaded("nbtcrafting")) {
+            return NbtCraftingUtil.getOutputStack(getOutput(), getPreviewInputs(), inv);
+        }
+        return this.getOutput().copy();
+    }
 
-	@Override
-	public RecipeType getType() {
-		return type;
-	}
+    @Override
+    public RecipeType getType() {
+        return type;
+    }
 
-	@Override
-	public RecipeSerializer getSerializer() {
-		return serializer;
-	}
+    @Override
+    public RecipeSerializer getSerializer() {
+        return serializer;
+    }
 
-	@Override
-	public Ingredient getCatalyst() {
-		return catalyst;
-	}
+    @Override
+    public Ingredient getCatalyst() {
+        return catalyst;
+    }
 
-	@Override
-	public int getCatalystCost() {
-		return catalystCost;
-	}
+    @Override
+    public int getCatalystCost() {
+        return catalystCost;
+    }
 
     @Override
     public int getWidth() {

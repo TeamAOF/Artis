@@ -14,6 +14,8 @@ public interface RecipeProvider {
 
     int getCraftingResultSlotIndex();
 
+    ArtisTableType getTableType();
+
     int getCraftingWidth();
 
     int getCraftingHeight();

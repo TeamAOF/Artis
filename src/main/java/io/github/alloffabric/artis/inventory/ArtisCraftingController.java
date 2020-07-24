@@ -4,7 +4,9 @@ import io.github.alloffabric.artis.Artis;
 import io.github.alloffabric.artis.ArtisClient;
 import io.github.alloffabric.artis.api.ArtisCraftingRecipe;
 import io.github.alloffabric.artis.api.ArtisTableType;
+import io.github.alloffabric.artis.api.ContainerLayout;
 import io.github.alloffabric.artis.api.RecipeProvider;
+import io.github.alloffabric.artis.inventory.slot.WArtisResultSlot;
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription;
 import io.github.cottonmc.cotton.gui.client.BackgroundPainter;
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing;
@@ -35,74 +37,102 @@ import net.minecraft.world.World;
 import java.util.Optional;
 
 public class ArtisCraftingController extends SyncedGuiDescription implements RecipeProvider {
-	private ArtisTableType tableType;
-	private PlayerEntity player;
-	private ArtisCraftingInventory craftInv;
-	private CraftingResultInventory resultInv;
-	private ScreenHandlerContext context;
+    private final ArtisTableType tableType;
+    private final PlayerEntity player;
+    private final ArtisCraftingInventory craftInv;
+    private final CraftingResultInventory resultInv;
+    private final ScreenHandlerContext context;
 
-	private WPlainPanel panel;
-	private WLabel label;
-	private WLabel catalystCost;
-	private WItemSlot grid;
-	private WItemSlot catalyst;
-	private WArtisResultSlot result;
-	private WPlayerInvPanel playerInv;
+    private final WPlainPanel panel;
+    private final WLabel label;
+    private final WItemSlot grid;
+    private final WArtisResultSlot result;
+    private final WPlayerInvPanel playerInv;
+    private WLabel catalystCost;
+    private WItemSlot catalyst;
 
-	public ArtisCraftingController(ScreenHandlerType type, ArtisTableType tableType, int syncId, PlayerEntity player, ScreenHandlerContext context) {
-		super(type, syncId, player.inventory, getBlockInventory(context), getBlockPropertyDelegate(context));
+    public ArtisCraftingController(ScreenHandlerType type, ArtisTableType tableType, int syncId, PlayerEntity player, ScreenHandlerContext context) {
+        super(type, syncId, player.inventory, getBlockInventory(context), getBlockPropertyDelegate(context));
 
-		this.tableType = tableType;
-		this.player = player;
-		this.context = context;
+        this.tableType = tableType;
+        this.player = player;
+        this.context = context;
 
-		this.resultInv = new CraftingResultInventory();
-		this.craftInv = new ArtisCraftingInventory(this, tableType.getWidth(), tableType.getHeight());
+        this.resultInv = new CraftingResultInventory();
+        this.craftInv = new ArtisCraftingInventory(this, tableType.getWidth(), tableType.getHeight());
+        if (tableType.hasBlockEntity()) {
+            for (int i = 0; i < blockInventory.size(); i++) {
+                craftInv.setStack(i, blockInventory.getStack(i));
+            }
+        }
 
-		ContainerLayout layout = new ContainerLayout(tableType.getWidth(), tableType.getHeight());
+        ContainerLayout layout = new ContainerLayout(tableType.getWidth(), tableType.getHeight());
 
-		panel = new WPlainPanel();
-		setRootPanel(panel);
+        panel = new WPlainPanel();
+        setRootPanel(panel);
 
-		this.result = new WArtisResultSlot(player, craftInv, resultInv, 0, 1, 1, true, syncId);
-		panel.add(result, layout.getResultX(), layout.getResultY() + 3);
+        this.result = new WArtisResultSlot(player, craftInv, resultInv, 0, 1, 1, true, syncId);
+        panel.add(result, layout.getResultX(), layout.getResultY() + 3);
 
-		if (getTableType().hasCatalystSlot()) {
-			this.catalyst = WItemSlot.of(craftInv, craftInv.size() - 1);
-			panel.add(catalyst, layout.getCatalystX(), layout.getCatalystY());
+        if (getTableType().hasCatalystSlot()) {
+            this.catalyst = WItemSlot.of(craftInv, craftInv.size() - 1);
+            panel.add(catalyst, layout.getCatalystX(), layout.getCatalystY());
 
-			this.catalystCost = new WLabel("", 0xAA0000).setHorizontalAlignment(HorizontalAlignment.CENTER);
-			panel.add(catalystCost, layout.getCatalystX(), layout.getCatalystY() + 18);
-		}
+            this.catalystCost = new WLabel("", 0xAA0000).setHorizontalAlignment(HorizontalAlignment.CENTER);
+            panel.add(catalystCost, layout.getCatalystX(), layout.getCatalystY() + 18);
+        }
 
-		this.grid = WItemSlot.of(craftInv, 0, getTableType().getWidth(), getTableType().getHeight());
-		panel.add(grid, layout.getGridX(), layout.getGridY());
+        this.grid = WItemSlot.of(craftInv, 0, getTableType().getWidth(), getTableType().getHeight());
+        panel.add(grid, layout.getGridX(), layout.getGridY());
 
-		this.playerInv = this.createPlayerInventoryPanel();
-		panel.add(playerInv, layout.getPlayerX(), layout.getPlayerY());
+        this.playerInv = this.createPlayerInventoryPanel();
+        panel.add(playerInv, layout.getPlayerX(), layout.getPlayerY());
 
-		this.label = new WLabel(ArtisClient.getName(tableType.getId()), 0x404040);
-		panel.add(label, 0, 0);
+        this.label = new WLabel(ArtisClient.getName(tableType.getId()), 0x404040);
+        panel.add(label, 0, 0);
 
-		WSprite arrow = new WSprite(new Identifier(Artis.MODID, "textures/gui/arrow.png"));
-		panel.add(arrow, layout.getArrowX(), layout.getArrowY() + 4, 22, 15);
+        WSprite arrow = new WSprite(new Identifier(Artis.MODID, "textures/gui/translucent_arrow.png"));
+        panel.add(arrow, layout.getArrowX(), layout.getArrowY() + 4, 22, 15);
 
-		panel.validate(this);
-	}
+        panel.validate(this);
+    }
 
-	public ArtisCraftingInventory getCraftInv() {
+    private static BackgroundPainter slotColor(int color) {
+        return (left, top, panel) -> {
+            int lo = ScreenDrawing.multiplyColor(color, 0.5F);
+            int bg = 0x4C000000;
+            int hi = ScreenDrawing.multiplyColor(color, 1.25F);
+            if (!(panel instanceof WItemSlot)) {
+                ScreenDrawing.drawBeveledPanel(left - 1, top - 1, panel.getWidth() + 2, panel.getHeight() + 2, lo, bg, hi);
+            } else {
+                WItemSlot slot = (WItemSlot) panel;
+
+                for (int x = 0; x < slot.getWidth() / 18; ++x) {
+                    for (int y = 0; y < slot.getHeight() / 18; ++y) {
+                        if (slot.isBigSlot()) {
+                            ScreenDrawing.drawBeveledPanel(x * 18 + left - 3, y * 18 + top - 3, 24, 24, lo, bg, hi);
+                        } else {
+                            ScreenDrawing.drawBeveledPanel(x * 18 + left, y * 18 + top, 18, 18, lo, bg, hi);
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    public ArtisCraftingInventory getCraftInv() {
         return craftInv;
     }
 
     public PlayerEntity getPlayer() {
-		return player;
-	}
+        return player;
+    }
 
-	@Override
-	@Environment(EnvType.CLIENT)
-	public void addPainters() {
-	    int color = tableType.getColor();
-	    if (tableType.hasColor()) {
+    @Override
+    @Environment(EnvType.CLIENT)
+    public void addPainters() {
+        int color = tableType.getColor();
+        if (tableType.hasColor()) {
             panel.setBackgroundPainter(BackgroundPainter.createColorful(color));
             grid.setBackgroundPainter(slotColor(color));
             if (tableType.hasCatalystSlot())
@@ -117,66 +147,49 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
             result.setBackgroundPainter(BackgroundPainter.SLOT);
             playerInv.setBackgroundPainter(BackgroundPainter.SLOT);
         }
-	}
+    }
 
-	private static BackgroundPainter slotColor(int color) {
-		return (left, top, panel) -> {
-			int lo = ScreenDrawing.multiplyColor(color, 0.5F);
-			int bg = 0x4C000000;
-			int hi = ScreenDrawing.multiplyColor(color, 1.25F);
-			if (!(panel instanceof WItemSlot)) {
-				ScreenDrawing.drawBeveledPanel(left - 1, top - 1, panel.getWidth() + 2, panel.getHeight() + 2, lo, bg, hi);
-			} else {
-				WItemSlot slot = (WItemSlot)panel;
+    @Override
+    public void close(PlayerEntity player) {
+        super.close(player);
+        this.context.run((world, pos) -> {
+            if (!tableType.hasBlockEntity()) {
+                dropInventory(player, world, craftInv);
+            } else {
+                for (int i = 0; i < craftInv.size(); i++) {
+                    blockInventory.setStack(i, craftInv.getStack(i));
+                }
+            }
+        });
+    }
 
-				for(int x = 0; x < slot.getWidth() / 18; ++x) {
-					for(int y = 0; y < slot.getHeight() / 18; ++y) {
-						if (slot.isBigSlot()) {
-							ScreenDrawing.drawBeveledPanel(x * 18 + left - 3, y * 18 + top - 3, 24, 24, lo, bg, hi);
-						} else {
-							ScreenDrawing.drawBeveledPanel(x * 18 + left, y * 18 + top, 18, 18, lo, bg, hi);
-						}
-					}
-				}
-			}
-		};
-	}
+    @Override
+    public int getCraftingWidth() {
+        return tableType.getWidth();
+    }
 
-	@Override
-	public void close(PlayerEntity player) {
-		super.close(player);
-		this.context.run((world, pos) ->{
-			dropInventory(player, world, craftInv);
-		});
-	}
+    @Override
+    public int getCraftingHeight() {
+        return tableType.getHeight();
+    }
 
-	@Override
-	public int getCraftingWidth() {
-		return tableType.getWidth();
-	}
+    @Override
+    public boolean matches(Recipe recipe) {
+        return recipe.matches(craftInv, player.world);
+    }
 
-	@Override
-	public int getCraftingHeight() {
-		return tableType.getHeight();
-	}
+    @Override
+    public int getCraftingResultSlotIndex() {
+        return 0;
+    }
 
-	@Override
-	public boolean matches(Recipe recipe) {
-		return recipe.matches(craftInv, player.world);
-	}
+    @Override
+    public int getCraftingSlotCount() {
+        return getTableType().getWidth() * getTableType().getHeight();
+    }
 
-	@Override
-	public int getCraftingResultSlotIndex() {
-		return 0;
-	}
-
-	@Override
-	public int getCraftingSlotCount() {
-		return getTableType().getWidth() * getTableType().getHeight();
-	}
-
-	public void updateResult(int syncId, World world, PlayerEntity player, CraftingInventory craftInv, CraftingResultInventory resultInv) {
-		if (!world.isClient) {
+    public void updateResult(int syncId, World world, PlayerEntity player, CraftingInventory craftInv, CraftingResultInventory resultInv) {
+        if (!world.isClient) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
             ItemStack stack = ItemStack.EMPTY;
             Optional<CraftingRecipe> opt = world.getServer().getRecipeManager().getFirstMatch(this.tableType, craftInv, world);
@@ -201,86 +214,87 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
                 CraftingRecipe recipe = opt.get();
                 if (recipe instanceof ArtisCraftingRecipe) {
                     ArtisCraftingRecipe artisCraftingRecipe = (ArtisCraftingRecipe) recipe;
-                    if (!artisCraftingRecipe.getCatalyst().isEmpty() && artisCraftingRecipe.getCatalystCost() > 0) {
+                    if (!artisCraftingRecipe.getCatalyst().isEmpty() && artisCraftingRecipe.getCatalystCost() > 0 && catalystCost != null) {
                         catalystCost.setText(new LiteralText(Formatting.RED + "-" + artisCraftingRecipe.getCatalystCost()));
                     }
                 }
-            } else {
+            } else if (tableType.hasCatalystSlot() && catalystCost != null) {
                 catalystCost.setText(new LiteralText(""));
             }
         }
-	}
-
-	@Override
-	public void onContentChanged(Inventory inv) {
-		this.context.run((world, pos) -> {
-			updateResult(this.syncId, world, this.player, this.craftInv, this.resultInv);
-		});
-	}
-
-	public ArtisTableType getTableType() {
-		return tableType;
-	}
-
-	@Override
-	public ItemStack transferSlot(PlayerEntity player, int slotIndex) {
-		ItemStack stack = ItemStack.EMPTY;
-		Slot slot = this.slots.get(slotIndex);
-		if (slot != null && slot.hasStack()) {
-			ItemStack toTake = slot.getStack();
-			stack = toTake.copy();
-			if (slotIndex == getCraftingResultSlotIndex()) {
-				this.context.run((world, pos) -> {
-					toTake.getItem().onCraft(toTake, world, player);
-				});
-				if (!this.insertItem(toTake, 0, 35, true)) {
-					return ItemStack.EMPTY;
-				}
-
-				slot.onStackChanged(toTake, stack);
-			}
-
-			if (toTake.isEmpty()) {
-				slot.setStack(ItemStack.EMPTY);
-			} else {
-				slot.markDirty();
-			}
-
-			if (toTake.getCount() == stack.getCount()) {
-				return ItemStack.EMPTY;
-			}
-
-			ItemStack takenStack = slot.onTakeItem(player, toTake);
-			if (slotIndex == getCraftingResultSlotIndex()) {
-				player.dropItem(takenStack, false);
-			}
-		}
-
-		return stack;
-	}
-
-	@Override
-    public ItemStack onSlotClick(int slotNumber, int button, SlotActionType action, PlayerEntity player) {
-		if (slotNumber == getCraftingResultSlotIndex() && action == SlotActionType.QUICK_MOVE) {
-			return transferSlot(player, slotNumber);
-		}
-
-		return super.onSlotClick(slotNumber, button, action, player);
     }
 
-	@Override
-	public void populateRecipeFinder(RecipeFinder finder) {
-		this.craftInv.provideRecipeInputs(finder);
-	}
+    @Override
+    public void onContentChanged(Inventory inv) {
+        this.context.run((world, pos) -> {
+            updateResult(this.syncId, world, this.player, this.craftInv, this.resultInv);
+        });
+    }
 
-	@Override
-	public void clearCraftingSlots() {
-		this.craftInv.clear();
-		this.resultInv.clear();
-	}
+    @Override
+    public ArtisTableType getTableType() {
+        return tableType;
+    }
 
-	@Override
-	public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
-		return slot.inventory != this.resultInv && super.canInsertIntoSlot(stack, slot);
-	}
+    @Override
+    public ItemStack transferSlot(PlayerEntity player, int slotIndex) {
+        ItemStack stack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(slotIndex);
+        if (slot != null && slot.hasStack()) {
+            ItemStack toTake = slot.getStack();
+            stack = toTake.copy();
+            if (slotIndex == getCraftingResultSlotIndex()) {
+                this.context.run((world, pos) -> {
+                    toTake.getItem().onCraft(toTake, world, player);
+                });
+                if (!this.insertItem(toTake, 0, 35, true)) {
+                    return ItemStack.EMPTY;
+                }
+
+                slot.onStackChanged(toTake, stack);
+            }
+
+            if (toTake.isEmpty()) {
+                slot.setStack(ItemStack.EMPTY);
+            } else {
+                slot.markDirty();
+            }
+
+            if (toTake.getCount() == stack.getCount()) {
+                return ItemStack.EMPTY;
+            }
+
+            ItemStack takenStack = slot.onTakeItem(player, toTake);
+            if (slotIndex == getCraftingResultSlotIndex()) {
+                player.dropItem(takenStack, false);
+            }
+        }
+
+        return stack;
+    }
+
+    @Override
+    public ItemStack onSlotClick(int slotNumber, int button, SlotActionType action, PlayerEntity player) {
+        if (slotNumber == getCraftingResultSlotIndex() && action == SlotActionType.QUICK_MOVE) {
+            return transferSlot(player, slotNumber);
+        }
+
+        return super.onSlotClick(slotNumber, button, action, player);
+    }
+
+    @Override
+    public void populateRecipeFinder(RecipeFinder finder) {
+        this.craftInv.provideRecipeInputs(finder);
+    }
+
+    @Override
+    public void clearCraftingSlots() {
+        this.craftInv.clear();
+        this.resultInv.clear();
+    }
+
+    @Override
+    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
+        return slot.inventory != this.resultInv && super.canInsertIntoSlot(stack, slot);
+    }
 }

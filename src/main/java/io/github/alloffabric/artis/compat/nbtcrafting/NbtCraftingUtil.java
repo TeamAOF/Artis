@@ -9,8 +9,8 @@ import net.minecraft.util.collection.DefaultedList;
 import java.util.Optional;
 
 public class NbtCraftingUtil {
-	public static ItemStack getOutputStack(ItemStack output, DefaultedList<Ingredient> ingredients, CraftingInventory inv) {
-		ItemStack stack = RecipeUtil.getDollarAppliedResult(output, ingredients, inv);
-		return Optional.ofNullable(stack).orElse(output).copy();
-	}
+    public static ItemStack getOutputStack(ItemStack output, DefaultedList<Ingredient> ingredients, CraftingInventory inv) {
+        ItemStack stack = RecipeUtil.getDollarAppliedResult(output, ingredients, inv);
+        return Optional.ofNullable(stack).orElse(output).copy();
+    }
 }

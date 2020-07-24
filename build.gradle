@@ -50,8 +50,7 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	compileOnly "com.google.code.findbugs:jsr305:3.0.2"
-
-	modApi "io.github.cottonmc:LibCD:${project.libcd_version}"
+	
 	modApi "io.github.cottonmc:LibGui:${project.libgui_version}"
 	modApi "io.github.cottonmc:StaticData:${project.static_data_version}"
 	modImplementation("me.shedaniel:RoughlyEnoughItems:${project.rei_version}") { exclude module: "ModMenu" }

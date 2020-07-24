@@ -12,8 +12,6 @@ import me.shedaniel.rei.api.RecipeHelper;
 import me.shedaniel.rei.api.plugins.REIPluginV0;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.SemanticVersion;
-import net.fabricmc.loader.util.version.VersionParsingException;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
@@ -43,24 +41,26 @@ public class ArtisREIPlugin implements REIPluginV0 {
         return PLUGIN;
     }
 
-	@Override
-	public void registerPluginCategories(RecipeHelper recipeHelper) {
+    @Override
+    public void registerPluginCategories(RecipeHelper recipeHelper) {
         for (ArtisTableType type : Artis.ARTIS_TABLE_TYPES) {
             recipeHelper.registerCategory(new ArtisCategory<>(type));
         }
-	}
+    }
 
-	@Override
-	public void registerRecipeDisplays(RecipeHelper recipeHelper) {
+    @Override
+    public void registerRecipeDisplays(RecipeHelper recipeHelper) {
         for (ArtisTableType type : Artis.ARTIS_TABLE_TYPES) {
             recipeHelper.registerRecipes(type.getId(), (Predicate<Recipe>) recipe -> recipe.getType() == type,
                     (Function<ArtisCraftingRecipe, RecipeDisplay>) recipe -> new ArtisDisplay(recipe, type));
         }
-	}
+    }
 
-	@Override
-	public void registerOthers(RecipeHelper recipeHelper) {
+    @Override
+    public void registerOthers(RecipeHelper recipeHelper) {
         recipeHelper.registerRecipeVisibilityHandler(new ArtisDisplayVisibilityHandler());
+
+        recipeHelper.registerAutoCraftingHandler(new ArtisCategoryHandler());
 
         for (ArtisTableBlock block : Artis.ARTIS_TABLE_BLOCKS) {
             recipeHelper.registerWorkingStations(block.getType().getId(), EntryStack.create(block.asItem()));
@@ -83,5 +83,5 @@ public class ArtisREIPlugin implements REIPluginV0 {
                 }
             }
         }
-	}
+    }
 }

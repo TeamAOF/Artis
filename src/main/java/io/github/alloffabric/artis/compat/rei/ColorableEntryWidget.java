@@ -6,9 +6,9 @@ import me.shedaniel.rei.gui.widget.EntryWidget;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class ColorableEntryWidget extends EntryWidget {
-    private int color;
-    private int x;
-    private int y;
+    private final int color;
+    private final int x;
+    private final int y;
 
     protected ColorableEntryWidget(int x, int y, int color) {
         this(new Point(x, y), color);
