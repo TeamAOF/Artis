@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(DefaultCategoryHandler.class)
 public class DefaultCategoryHandlerMixin {
-    @Inject(method = "handle", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "handle(Lme/shedaniel/rei/api/AutoTransferHandler$Context;)Lme/shedaniel/rei/api/AutoTransferHandler$Result;", at = @At("HEAD"), cancellable = true)
     private void handle(AutoTransferHandler.Context context, CallbackInfoReturnable<AutoTransferHandler.Result> callbackInfoReturnable) {
         if (context.getRecipe() instanceof ArtisDisplay || context.getContainer() instanceof ArtisCraftingController) {
             callbackInfoReturnable.setReturnValue(AutoTransferHandler.Result.createNotApplicable());
