@@ -19,12 +19,12 @@ public class ContainerLayout {
     private int arrowX;
     private final int arrowY;
     private final int playerX;
-    private final int playerY;
+    private int playerY;
 
-    public ContainerLayout(int gridColumns, int gridRows) {
+    public ContainerLayout(int gridColumns, int gridRows, boolean hasCatalyst) {
         this.gridWidth = gridColumns * 18;
         this.catalystX = gridWidth + 10;
-        this.resultX = catalystX + 18 + 14;
+        this.resultX = catalystX + 18 + 10;
         this.arrowX = catalystX - 3;
         this.craftingWidth = resultX + 22;
 
@@ -33,7 +33,7 @@ public class ContainerLayout {
         this.arrowY = midpoint + 4;
         this.catalystY = arrowY + 21;
         this.resultY = midpoint + 4;
-        this.craftingHeight = Math.max(35, gridHeight);
+        this.craftingHeight = Math.max(25, gridHeight);
 
         this.gridY = 16;
         this.gridX = craftingWidth > playerWidth ? 0 : ((playerWidth - craftingWidth) / 2) + 2;
@@ -43,6 +43,11 @@ public class ContainerLayout {
 
         this.playerX = playerWidth > craftingWidth ? 0 : ((craftingWidth - playerWidth) / 2) + 2;
         this.playerY = gridY + Math.max(48, gridHeight + 10);
+        if (!hasCatalyst && gridRows == 1) {
+            this.playerY -= 18;
+        } else if (hasCatalyst && gridRows == 1) {
+            this.playerY -= 8;
+        }
     }
 
     public int getGridX() {

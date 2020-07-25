@@ -56,6 +56,7 @@ dependencies {
 	modImplementation("me.shedaniel:RoughlyEnoughItems:${project.rei_version}") { exclude module: "ModMenu" }
 	modImplementation "com.github.Siphalor:nbt-crafting:${project.nbtcrafting_version}"
 	modImplementation "com.lettuce.fudge:artifice:${project.artifice_version}"
+	modImplementation "com.github.KubeJS-Mods:KubeJS-Fabric:${project.kubejs_version}"
 
 	include "io.github.cottonmc:LibGui:${project.libgui_version}"
 	include "io.github.cottonmc:StaticData:${project.static_data_version}"

@@ -1,6 +1,7 @@
 package io.github.alloffabric.artis;
 
 import com.mojang.serialization.Lifecycle;
+import dev.latvian.kubejs.script.ScriptType;
 import io.github.alloffabric.artis.api.ArtisExistingBlockType;
 import io.github.alloffabric.artis.api.ArtisExistingItemType;
 import io.github.alloffabric.artis.api.ArtisTableType;
@@ -8,25 +9,23 @@ import io.github.alloffabric.artis.block.ArtisTableBEBlock;
 import io.github.alloffabric.artis.block.ArtisTableBlock;
 import io.github.alloffabric.artis.block.ArtisTableItem;
 import io.github.alloffabric.artis.block.entity.ArtisTableBlockEntity;
+import io.github.alloffabric.artis.compat.kubejs.ArtisJsonRegistryEventJS;
 import io.github.alloffabric.artis.event.ArtisEvents;
 import io.github.alloffabric.artis.inventory.ArtisCraftingController;
 import io.github.alloffabric.artis.util.ArtisRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.fabricmc.fabric.impl.screenhandler.ExtendedScreenHandlerType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.recipe.Recipe;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.util.Identifier;
@@ -85,6 +84,9 @@ public class Artis implements ModInitializer {
     @Override
     public void onInitialize() {
         if (!isLoaded) {
+            if (FabricLoader.getInstance().isModLoaded("kubejs"))
+                new ArtisJsonRegistryEventJS().post(ScriptType.STARTUP, "artis.registry");
+
             ArtisData.loadData();
             ArtisData.loadConfig();
             ArtisEvents.init();

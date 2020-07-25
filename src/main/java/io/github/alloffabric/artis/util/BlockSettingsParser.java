@@ -2,7 +2,7 @@ package io.github.alloffabric.artis.util;
 
 import blue.endless.jankson.JsonObject;
 import io.github.alloffabric.artis.Artis;
-import net.fabricmc.fabric.api.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
@@ -146,17 +146,17 @@ public class BlockSettingsParser {
     public static Block.Settings parseSettings(JsonObject json) {
         if (json == null) {
             Artis.logger.error("[Artis] Cannot parse block settings that aren't a json object!");
-            return FabricBlockSettings.copy(Blocks.CRAFTING_TABLE).build();
+            return FabricBlockSettings.copyOf(Blocks.CRAFTING_TABLE);
         }
         FabricBlockSettings settings;
         if (json.containsKey("copy")) {
             String copyTarg = json.get(String.class, "copy");
-            settings = FabricBlockSettings.copy(Registry.BLOCK.get(new Identifier(copyTarg)));
+            settings = FabricBlockSettings.copyOf(Registry.BLOCK.get(new Identifier(copyTarg)));
         } else if (json.containsKey("material")) {
             String matTarg = json.get(String.class, "material");
             settings = FabricBlockSettings.of(MATERIALS.get(matTarg));
         } else {
-            settings = FabricBlockSettings.copy(Blocks.CRAFTING_TABLE);
+            settings = FabricBlockSettings.copyOf(Blocks.CRAFTING_TABLE);
         }
 
         if (json.containsKey("break_by_hand")) {
@@ -223,6 +223,6 @@ public class BlockSettingsParser {
             settings.dynamicBounds();
         }
 
-        return settings.build();
+        return settings;
     }
 }

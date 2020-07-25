@@ -63,7 +63,7 @@ public class ArtisCraftingController extends SyncedGuiDescription implements Rec
                 craftInv.setStack(i, blockInventory.getStack(i));
             }
         }
-        ContainerLayout layout = new ContainerLayout(tableType.getWidth(), tableType.getHeight());
+        ContainerLayout layout = new ContainerLayout(tableType.getWidth(), tableType.getHeight(), tableType.hasCatalystSlot());
 
         panel = new WPlainPanel();
         setRootPanel(panel);

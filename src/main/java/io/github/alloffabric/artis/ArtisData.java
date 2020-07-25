@@ -11,7 +11,7 @@ import io.github.alloffabric.artis.util.BlockSettingsParser;
 import io.github.cottonmc.jankson.JanksonFactory;
 import io.github.cottonmc.staticdata.StaticData;
 import io.github.cottonmc.staticdata.StaticDataItem;
-import net.fabricmc.fabric.api.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -60,6 +60,12 @@ public class ArtisData {
         }
     }
 
+    public static void loadData(JsonObject json) {
+        if (json != null) {
+            loadEntries("kubejs", json.containsKey("tables") ? json.getObject("tables") : json);
+        }
+    }
+
     private static void loadEntries(String from, JsonObject json) {
         List<String> keys = new ArrayList<>(json.keySet());
         Collections.sort(keys);
@@ -76,7 +82,7 @@ public class ArtisData {
                 if (config.containsKey("settings")) {
                     settings = BlockSettingsParser.parseSettings(config.getObject("settings"));
                 } else {
-                    settings = FabricBlockSettings.copy(Blocks.CRAFTING_TABLE).build();
+                    settings = FabricBlockSettings.copyOf(Blocks.CRAFTING_TABLE);
                 }
                 Artis.registerTable(type, settings);
             }
@@ -89,13 +95,19 @@ public class ArtisData {
         String tableType = json.containsKey("type") ? json.get(String.class, "type") : "normal";
         int width = json.getInt("width", 3);
         int height = json.getInt("height", 3);
-        if (width > 9) {
-            Artis.logger.error("[Artis] Table type named {} has too many columns, clamping it to 9", key);
-            width = 9;
+        if (width > 7) {
+            Artis.logger.warn("[Artis] Only tables up to 7 columns are supported. Anything higher may, and likely will, break visually.", key);
+            if (width > 9) {
+                Artis.logger.error("[Artis] Table type named {} has too many columns, clamping it to 9", key);
+                width = 9;
+            }
         }
-        if (height > 9) {
-            Artis.logger.error("[Artis] Table type named {} has too many rows, clamping it to 9", key);
-            height = 9;
+        if (height > 7) {
+            Artis.logger.warn("[Artis] Only tables up to 7 rows are supported. Anything higher may, and likely will, break visually.", key);
+            if (height > 9) {
+                Artis.logger.error("[Artis] Table type named {} has too many rows, clamping it to 9", key);
+                height = 9;
+            }
         }
         boolean blockEntity = json.getBoolean("block_entity", false);
         boolean catalystSlot = json.getInt("catalyst_slot", 0) != 0;

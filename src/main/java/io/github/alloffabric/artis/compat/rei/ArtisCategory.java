@@ -1,6 +1,7 @@
 package io.github.alloffabric.artis.compat.rei;
 
 import com.google.common.collect.Lists;
+import io.github.alloffabric.artis.Artis;
 import io.github.alloffabric.artis.api.ArtisTableType;
 import io.github.alloffabric.artis.api.RecipeProvider;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -64,6 +65,11 @@ public class ArtisCategory<R extends Recipe> implements TransferRecipeCategory<A
     @Override
     public List<Widget> setupDisplay(ArtisDisplay recipeDisplay, Rectangle bounds) {
         Point startPoint = new Point(bounds.getCenterX() - (getDisplayWidth(recipeDisplay) / 2) + 17, bounds.getCenterY() - (getDisplayHeight() / 2) + 15);
+
+        Artis.logger.info(this::getDisplayHeight);
+        if (artisTableType.hasCatalystSlot() && artisTableType.getHeight() == 1) {
+            bounds.setSize(bounds.width, bounds.height + 18);
+        }
 
         List<Widget> widgets = new LinkedList(Arrays.asList(Widgets.createRecipeBase(bounds)));
         if (artisTableType.hasColor()) {
