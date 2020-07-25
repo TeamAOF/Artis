@@ -1,11 +1,8 @@
 package io.github.alloffabric.artis.compat.kubejs;
 
-import blue.endless.jankson.api.SyntaxError;
 import com.google.gson.JsonObject;
 import dev.latvian.kubejs.KubeJS;
 import dev.latvian.kubejs.util.BuilderBase;
-import io.github.alloffabric.artis.Artis;
-import io.github.alloffabric.artis.ArtisData;
 import net.minecraft.util.Identifier;
 
 public class ArtisJsonBuilder extends BuilderBase {
@@ -92,6 +89,11 @@ public class ArtisJsonBuilder extends BuilderBase {
         return this;
     }
 
+    public ArtisJsonBuilder sounds(String sounds) {
+        settings.addProperty("sounds", sounds);
+        return this;
+    }
+
     public ArtisJsonBuilder collidable(boolean value) {
         settings.addProperty("collidable", value);
         return this;
@@ -106,11 +108,6 @@ public class ArtisJsonBuilder extends BuilderBase {
 
     public ArtisJsonBuilder nonOpaque() {
         settings.addProperty("non_opaque", true);
-        return this;
-    }
-
-    public ArtisJsonBuilder sounds(String sounds) {
-        settings.addProperty("sounds", sounds);
         return this;
     }
 
@@ -159,14 +156,14 @@ public class ArtisJsonBuilder extends BuilderBase {
         return this;
     }
 
-    public void build() {
-        try {
-            ArtisData.loadData(ArtisData.jankson.load(root.toString()));
-            Artis.logger.info(root.toString());
-        } catch (SyntaxError syntaxError) {
-            Artis.logger.error("[Artis] Error converting JSON for KubeJS. Is JSON empty?");
-        }
-    }
+//    public void build() {
+//        try {
+//            ArtisData.loadData(ArtisData.jankson.load(root.toString()));
+//            Artis.logger.info(root.toString());
+//        } catch (SyntaxError syntaxError) {
+//            Artis.logger.error("[Artis] Error converting JSON for KubeJS. Is JSON empty?");
+//        }
+//    }
 
     public String getType() {
         return "block";

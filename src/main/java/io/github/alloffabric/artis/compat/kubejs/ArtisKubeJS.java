@@ -1,5 +1,6 @@
 package io.github.alloffabric.artis.compat.kubejs;
 
+import blue.endless.jankson.api.SyntaxError;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,13 +15,27 @@ import dev.latvian.kubejs.recipe.RegisterRecipeHandlersEvent;
 import dev.latvian.kubejs.util.ListJS;
 import dev.latvian.kubejs.util.MapJS;
 import io.github.alloffabric.artis.Artis;
+import io.github.alloffabric.artis.ArtisData;
 import io.github.alloffabric.artis.api.ArtisTableType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ArtisRecipeEventHandler implements KubeJSInitializer {
+public class ArtisKubeJS implements KubeJSInitializer {
+	public static final ArrayList<ArtisJsonBuilder> ARTIS_JSON_BUILDERS = new ArrayList<>();
+
+	public static void initTables() {
+		for (ArtisJsonBuilder artisJsonBuilder : ARTIS_JSON_BUILDERS) {
+			try {
+				ArtisData.loadData(ArtisData.jankson.load(artisJsonBuilder.root.toString()));
+				Artis.logger.info(artisJsonBuilder.root.toString());
+			} catch (SyntaxError syntaxError) {
+				Artis.logger.error("[Artis] Error converting JSON for KubeJS. Is JSON empty?");
+			}
+		}
+	}
+
 	@Override
 	public void onKubeJSInitialization() {
 		RegisterRecipeHandlersEvent.EVENT.register(event -> {

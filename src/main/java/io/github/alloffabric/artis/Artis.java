@@ -10,6 +10,7 @@ import io.github.alloffabric.artis.block.ArtisTableBlock;
 import io.github.alloffabric.artis.block.ArtisTableItem;
 import io.github.alloffabric.artis.block.entity.ArtisTableBlockEntity;
 import io.github.alloffabric.artis.compat.kubejs.ArtisJsonRegistryEventJS;
+import io.github.alloffabric.artis.compat.kubejs.ArtisKubeJS;
 import io.github.alloffabric.artis.event.ArtisEvents;
 import io.github.alloffabric.artis.inventory.ArtisCraftingController;
 import io.github.alloffabric.artis.util.ArtisRegistry;
@@ -84,8 +85,11 @@ public class Artis implements ModInitializer {
     @Override
     public void onInitialize() {
         if (!isLoaded) {
-            if (FabricLoader.getInstance().isModLoaded("kubejs"))
+            if (FabricLoader.getInstance().isModLoaded("kubejs")) {
                 new ArtisJsonRegistryEventJS().post(ScriptType.STARTUP, "artis.registry");
+
+                ArtisKubeJS.initTables();
+            }
 
             ArtisData.loadData();
             ArtisData.loadConfig();

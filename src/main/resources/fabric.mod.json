@@ -28,7 +28,7 @@
       "io.github.alloffabric.artis.compat.libcd.ArtisLibCDPlugin"
     ],
 	"kubejs-init": [
-	  "io.github.alloffabric.artis.compat.kubejs.ArtisRecipeEventHandler"
+	  "io.github.alloffabric.artis.compat.kubejs.ArtisKubeJS"
     ]
   },
   "mixins": [
