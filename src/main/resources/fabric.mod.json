@@ -24,10 +24,7 @@
 	"rei_containers": [
       "io.github.alloffabric.artis.compat.rei.ArtisServerContainerPlugin"
     ],
-    "libcd": [
-      "io.github.alloffabric.artis.compat.libcd.ArtisLibCDPlugin"
-    ],
-	"kubejs-init": [
+    "kubejs-init": [
 	  "io.github.alloffabric.artis.compat.kubejs.ArtisKubeJS"
     ]
   },
